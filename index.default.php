@@ -57,7 +57,7 @@ if (defined('ENVIRONMENT'))
  * as this file.
  *
  */
-	define(THIRD_PATH, __DIR__ . '/private/ci-thirdparty/');
+	define("THIRD_PATH", __DIR__ . '/private/ci-thirdparty/');
 	
 /*
  *---------------------------------------------------------------
