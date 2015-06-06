@@ -15,7 +15,8 @@ $db['default']['cachedir'] = APPPATH . 'dbcache';
 $db['default']['char_set'] = 'utf8';
 $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
-$db['default']['autoinit'] = False;
+# todo: check why this option has to be true
+$db['default']['autoinit'] = True;
 $db['default']['stricton'] = False;
 
 
