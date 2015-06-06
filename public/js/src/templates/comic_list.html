@@ -1,0 +1,44 @@
+<h2>所有漫畫 <small>在這裡可以盡情尋找喜歡的漫畫</small> </h2>
+<hr>
+<p class="category-p">
+	<strong>英文字首</strong>
+	<a href="#" data-false="true" data-catid="0" <%= (query.cat_id == 0 ? "class='active'" : 0) %>>全部</a>
+	<% _.each(categories.en, function (cat) { %>
+	<a href="#" data-false="true" data-catid="<%= cat.category_id %>" <%= (query.cat_id == cat.category_id ? "class='active'" : 0) %>><%= cat.name %></a>
+	<% }); %>
+</p>
+<p class="category-p">
+	<strong>注音字首</strong>
+	<a href="#" data-false="true" data-catid="0" <%= (query.cat_id == 0 ? "class='active'" : 0) %>>全部</a>
+	<% _.each(categories.zh_tw, function (cat) { %>
+	<a href="#" data-false="true" data-catid="<%= cat.category_id %>" <%= (query.cat_id == cat.category_id ? "class='active'" : 0) %>><%= cat.name %></a>
+	<% }); %>
+</p>
+<p class="order-p">
+	<strong>排序依照</strong>
+	<%	_.each({name: "漫畫名稱", pop: "人氣統計", update_time: "最後更新"}, function (ch, en) { %>
+		<a href="#" data-false="true" data-order="<%= en %>" <%= (query.order == en ? "class='active'" : 0) %>><%= ch %></a>
+	<% });%>
+</p>
+<p class="type-p">
+	<strong>連載狀態</strong>
+	<a href="#" data-false="true" data-type="online" <%= (query.type == 'online' ? "class='active'" : 0) %>>連載中</a>
+	<a href="#" data-false="true" data-type="finish" <%= (query.type == 'finish' ? "class='active'" : 0) %>>已完結</a>
+</p>
+<div class="pagination"></div>
+<ul class="unstyled title-img">
+	<% _.each(data, function (row, index) { %>
+		<li>
+			<a href="#/vtitle/<%= row.vtid %>">
+				<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+				<br />
+				<%= row.title %>
+				<br />
+				人氣: <%= (row.pop || '0') %>
+				<br />
+				更新: <%= row.dateStr %>
+			</a>
+		</li>
+	<% }); %>
+</ul>
+<div class="pagination"></div>

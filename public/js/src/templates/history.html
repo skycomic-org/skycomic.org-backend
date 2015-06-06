@@ -1,0 +1,19 @@
+<h2>
+	觀看紀錄 <small class="hidden-phone">看到一半關掉沒關係, 來這裡繼續看!</small>
+</h2>
+<hr>
+
+<div>
+	<% if (records.length != 0 ) { %>
+		<ul class="tab-pane unstyled title-img active">
+			<% 
+				_.each(records, function (comicRow) {
+					var str = window.widget.comic_slot(comicRow);
+					%><%= str %><%
+				});
+			%>
+		</ul>
+	<% } else { %>
+	你還沒有看過任何漫畫!<a href="#/comics">探索更多漫畫</a>?</li>
+	<% } %>
+</div>

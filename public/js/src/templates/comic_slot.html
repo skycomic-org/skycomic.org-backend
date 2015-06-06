@@ -1,0 +1,29 @@
+<li style="text-align:center">
+	<a href="#/vtitle/<%= vtid %>/<%= tid %>">
+		<%= title %>
+		<br>
+		<img src="<%= window.THUMBNAIL %><%= tid %>" alt="" />
+	</a>
+	<br />
+	<% if (typeof cid !== 'undefined') { %>
+		<a data-cid="<%= cid %>" class="browse-queue" href="#"><%= chapter %></a>
+	<% } %>
+	<% if (typeof pages !== 'undefined') { %>
+		<br />
+		頁數: <%= (pages || '0') %>
+	<% } %>
+	<% if (typeof page !== 'undefined') { %>
+		<br />
+		上次看到 <%= page %> 頁
+	<% } %>
+	<% if (typeof dateStr !== 'undefined') { %>
+		<br />
+		更新: <%= dateStr %>
+	<% } %>
+	<% if (typeof viewtime !== 'undefined') { %>
+		<br />
+		觀看時間
+		<br />
+		<%= viewtime %>
+	<% } %>
+</li>

@@ -1,0 +1,13 @@
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="Modal-Label">看完囉!</h3>
+</div>
+<div class="modal-body">
+	<p>你已經看完「<%= title %>-<%= chapter %>」囉！ <br>
+		你現在想要...
+	</p>
+	<p><button id="browse-favor-btn" class="btn btn-primary"><%= (favored ? '移除我的最愛' : '加入我的最愛') %></button></p>
+	<p><a href="#/title/<%= tid %>" class="btn btn-primary">瀏覽「<%= title %>」</a></p>
+	<p><a href="#/" class="btn btn-primary">回到首頁</a></p>
+	<p><button id="browse-nextchapter-btn" class="btn btn-primary">看<%= (last ? '下' : '上') %>一話</button></p>
+</div>

@@ -1,0 +1,16 @@
+<div id="chapters-<%= tid %>" class="tab-pane active">
+	<ul class="unstyled title">
+		<% _.each(chapters, function (chapter, i) { %>
+		<li>
+			<%
+				var view = "";
+				if ( _.any(viewed, function (num) { return num == chapter.index; }) ) { view="btn-info"; } 
+			%>
+			<button class="browse-queue-multi btn <%= view %>" data-index="<%= chapter.index %>" data-tid="<%= tid %>">
+				<strong><%= chapter.name %></strong>
+			</button>
+		</li>
+		<% }); %>
+	</ul>
+</div>
+<div class="tab-pane" id="comments-<%= tid %>"></div>

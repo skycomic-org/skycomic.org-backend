@@ -1,0 +1,10 @@
+[submodule "private/ci-thirdparty"]
+	path = private/ci-thirdparty
+	url = git@github.com:skycomic-org/ci-thirdparty.git
+[submodule "private/ci-core"]
+	path = private/ci-core
+	url = git@github.com:skycomic-org/CodeIgniter.git
+	branch = 2.2-stable
+[submodule "private/mediawiki-1.15.4"]
+	path = private/mediawiki-1.15.4
+	url = https://github.com/skycomic-org/mediawiki.git

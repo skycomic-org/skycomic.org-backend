@@ -1,0 +1,47 @@
+<div id="real-comments"<%= (center ? "" : "") %>>
+	<%= T_LeaveComment({span: 8, id: 0, parent_id: 0, text: "在想甚麼嗎?"}) %>
+	<div class="row">
+	<% comments.each(function (model) { %>
+	<div class="span11" style="margin-left: 80px">
+		<div>
+			<div class="row">
+				<div class="span2"><%= model.get("nickname") %></div>
+				<div class="span7">
+					<div data-cid="<%= model.get("id") %>" class="page-header row">
+						<p class="span6">
+							<strong><% if ( model.get("chapter") ) { %>「<%= model.get("chapter") %>」之討論 - <% } %></strong>
+							<small><%= model.get("dateStr") %></small>
+							<% if ( model.get("my_own") ) { %>
+							<a href="#" data-false="true" class="edit">修改</a>
+							<a href="#" data-false="true" class="delete">刪除</a>
+							<% } %>
+						</p>
+						<p class="span2"><a href="#" data-false="true" class="push">推</a> <%= model.get("push") %> / <a href="#" data-false="true" class="hush">噓</a> <%= model.get("hush") %></p>
+					</div>
+					<p><%= model.get("content") %></p>
+					<%= T_LeaveComment({span: 7, id: model.get("id"), parent_id: 0, value: model.get("content")}) %>
+					<% _.each(model.get("replys"), function (row) {%>
+						<hr />
+						<div data-cid="<%= row.id %>" class="row">
+							<p class="span6">
+								<%= row.nickname %> - 
+								<small><%= row.dateStr %></small>
+								<% if ( row.my_own ) { %>
+								<a href="#" data-false="true" class="edit">修改</a>
+								<a href="#" data-false="true" class="delete">刪除</a>
+								<% } %>
+							</p>
+							<p class="span2"><a href="#" data-false="true" class="push">推</a> <%= row.push %> / <a href="#" data-false="true" class="hush">噓</a> <%= row.hush %></p>
+						</div>
+						<p><%= row.content %></p>
+						<p><%= T_LeaveComment({span: 7, id: row.id, parent_id: 0, value: row.content}) %></p>
+					<%}); %>
+				</div>
+			</div>
+			<%= T_LeaveComment({span: 7, id: 0, parent_id: model.get("id"), text: "留言..."}) %>
+		</div>
+	</div>
+	<% });%>
+	</div>
+</div>
+<div class="pagination"></div>

@@ -1,0 +1,7 @@
+<ul>
+	<li class="prev <%= (nowpage == 1 ? "disabled" : "") %>"><a href="#" data-false="true" data-page="<%= (nowpage-1) %>">&larr; 上一頁</a></li>
+	<% _.each(showpages, function (page) { %>
+	<li><a <%= (page == nowpage ? "class='active'" : "") %> href="#" data-false="true" data-page="<%= page %>"><%= page %></a></li>
+	<% }); %>
+	<li class="next <%= (nowpage == maxpage ? "disabled" : "") %>"><a href="#" data-false="true" data-page="<%= (nowpage+1) %>">下一頁 &rarr;</a></li>
+</ul>

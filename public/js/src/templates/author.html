@@ -1,0 +1,16 @@
+<h2><%= name %> <small>的作品</small></h2>
+<ul class="unstyled title-img">
+	<% _.each(works, function (row, index) { %>
+		<li>
+			<a href="#/vtitle/<%= row.vtid %>">
+				<img src="<%= window.THUMBNAIL %><%= row.tid %>" alt="" />
+				<br />
+				<%= row.title %>
+				<br />
+				人氣: <%= (row.pop || '0') %>
+				<br />
+				更新: <%= row.dateStr %>
+			</a>
+		</li>
+	<% }); %>
+</ul>

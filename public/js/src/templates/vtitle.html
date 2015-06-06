@@ -1,0 +1,61 @@
+<div class="tabbable">
+	<h1><%= data[0].title %></h1>
+	<ul id="title-tabs" class="nav nav-tabs">
+	<% _.each(data, function (row, i) { %>
+		<li data-tid="<%= row.tid %>" data-tab="#site-<%= i %>" class="<%= (row.tid == tid ? 'active' : '') %>"><a data-toggle="tab" href="#" data-target="#site-<%= i %>"><%= row.site.nickname %></a></li>
+	<% }); %>
+	</ul>
+
+	<div class="tab-content">
+		<% _.each(data, function (row, i) { %>
+			<div class="tab-pane <%= (row.tid == tid ? 'active' : '') %>" id="site-<%= i %>">
+				<div class="page-header">
+					<div class="row-fluid">
+						<div class="span3">
+							<img src="<%= ("/images/thumbnail/" + row.tid + "/1") %>" alt="">
+						</div>
+						<div class="span7">
+							<table class="table table-striped">
+								<tr>
+									<th class="span2">作者</th>
+									<td><a href="#/author/<%= row.author_id %>"><%= row.author %></a></td>
+								</tr>
+								<tr>
+									<th>狀態</th>
+									<td><%= row.stop_renew %></td>
+								</tr>
+								<tr>
+									<th>當月人氣</th>
+									<td><%= row.pop %></td>
+								</tr>
+								<tr>
+									<th>最後更新</th>
+									<td><%= row.update_time %></td>
+								</tr>
+								<tr>
+									<th>簡介</th>
+									<td><%= row.intro %></td>
+								</tr>
+								<tr>
+									<th></th>
+									<td>
+										<button class="favored-button btn btn-primary" data-tid="<%= row.tid %>">
+											<%= row.favored ? '<i class="icon-white icon-trash"></i> 從我的最愛刪除' : '<i class="icon-white icon-heart"></i> 加入我的最愛' %>
+										</button>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="tabbable">
+					<ul class="nav nav-tabs">
+						<li class="active" data-tab="#chapters-<%= row.tid %>"><a data-toggle="tab" href="#" data-target="#chapters-<%= row.tid %>"><i class="icon-th-list"></i> 章節</a></li>
+						<li data-tab="#comments-<%= row.tid %>"><a data-toggle="tab" href="#" data-target="#comments-<%= row.tid %>"><i class="icon-comment"></i> 評論</a></li>
+					</ul>
+					<div class="tab-content" id="title-<%= row.tid %>"></div>
+				</div>
+			</div>
+		<% }); %>
+	</div>
+</div>

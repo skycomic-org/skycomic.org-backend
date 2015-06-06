@@ -1,0 +1,26 @@
+<div id="facebook-crawler">
+	<h2>公告<small class="pull-right"><a href="https://www.facebook.com/Skycomic.org" target="_blank">更多</a></small></h2>
+	<table class="table">
+		<% _.each(data, function (row) { %>
+		<tr>
+			<td class="message"><%= row.message %></td>
+		</tr>
+		<tr>
+			<td style="text-align:right">
+	          <a href="https://www.facebook.com/<%= row.id %>" target="_blank"><i class="icon-calendar"></i> <%= row.created_time %></a>
+	          | <i class="icon-comment"></i> <%= row.comments %>
+	          | <i class="icon-thumbs-up"></i> <%= row.likes %>
+          	</td>
+		</tr>
+		<% }); %>
+	</table>
+</div>
+<div>
+	<form target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+		<input type="hidden" name="cmd" value="_s-xclick">
+		<input type="hidden" name="hosted_button_id" value="FEYRDDPAVD8G2">
+		<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal － 更安全、更簡單的線上付款方式！">
+		<img alt="" border="0" src="https://www.paypalobjects.com/zh_TW/i/scr/pixel.gif" width="1" height="1"><br>
+		<a href="#/donation">為什麼SkyComic需要贊助?</a>
+	</form>
+</div>

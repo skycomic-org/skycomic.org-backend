@@ -1,0 +1,107 @@
+<div class="row">
+	<div class="span3">
+		<h2>人氣章節</h2>
+		<ul class="nav nav-tabs">
+			<% _.each(populars.chapters, function (pdata, ptype) { %>
+				<% if (ptype == "today" ) { %>
+				<li class="active" data-tab="#pop-chapter-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-chapter-<%= ptype %>"><%= ptype %></a></li>
+				<% } else { %>
+				<li data-tab="#pop-chapter-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-chapter-<%= ptype %>"><%= ptype %></a></li>
+				<% } %>
+			<% }); %>
+		</ul>
+		<div class="tab-content tab-pane">
+		<% _.each(populars.chapters, function (pdata, ptype) { %>
+		<div id="pop-chapter-<%= ptype %>" <% if (ptype == "today" ) { %>class="active tab-pane"<% } else{ %>class="tab-pane"<% } %>>
+			<ul class="title-img-vertical">
+				<% _.each(pdata, function (row, index) { %>
+					<li>
+						<a title="<%= row.title %>" href="#/title/<%= row.tid %>">
+							<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+							<%= row.title %>
+						</a>
+						<br />
+						<a title="<%= row.chapter %>" data-cid="<%= row.cid %>" class="browse-queue" href="#">
+							<%= row.chapter.substr(0, 11) %>
+						</a>
+						<br />
+						人氣: <%= row.pop %>
+					</li>
+				<% }); %>
+			</ul>
+		</div>
+		<% }); %>
+		</div>
+	</div>
+
+	<div class="span3">
+		<h2>人氣漫畫</h2>
+		<ul class="nav nav-tabs">
+			<% _.each(populars.titles, function (pdata, ptype) { %>
+				<% if (ptype == "today" ) { %>
+				<li class="active" data-tab="#pop-title-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-title-<%= ptype %>"><%= ptype %></a></li>
+				<% } else { %>
+				<li data-tab="#pop-title-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-title-<%= ptype %>"><%= ptype %></a></li>
+				<% } %>
+			<% }); %>
+		</ul>
+		<div class="tab-content tab-pane">
+		<% _.each(populars.titles, function (pdata, ptype) { %>
+		<div id="pop-title-<%= ptype %>" <% if (ptype == "today" ) { %>class="active tab-pane"<% } else{ %>class="tab-pane"<% } %>>
+			<ul class="title-img-vertical">
+				<% _.each(pdata, function (row, index) { %>
+					<li>
+						<a title="<%= row.title %>" href="#/title/<%= row.tid %>">
+							<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+							<%= row.title %>
+						</a>
+						<br />
+						人氣: <%= row.pop %>
+					</li>
+				<% }); %>
+			</ul>
+		</div>
+		<% }); %>
+		</div>
+	</div>
+
+	<div class="span3" style="overflow: hidden">
+		<h2>最新連載</h2>
+		<ul class="title-img-vertical">
+			<% _.each(newest, function (row, index) { %>
+				<li>
+					<a title="<%= row.title %>" href="#/title/<%= row.tid %>">
+						<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+						<%= row.title %>
+					</a>
+					<br />
+					<a title="<%= row.chapter %>" data-cid="<%= row.cid %>" class="browse-queue" href="#">
+						<%= row.chapter.substr(0, 11) %>
+					</a>
+					<br />
+					更新: <%= row.dateStr %>
+				</li>
+			<% }); %>
+		</ul>
+	</div>
+
+	<div class="span3" style="overflow: hidden">
+		<h2>最近閱讀</h2>
+		<ul class="title-img-vertical">
+			<% _.each(lastview, function (row, index) { %>
+				<li>
+					<a title="<%= row.title %>" href="#/title/<%= row.tid %>">
+						<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+						<%= row.title %>
+					</a>
+					<br />
+					<a title="<%= row.chapter %>" data-cid="<%= row.cid %>" class="browse-queue" href="#">
+						<%= row.chapter.substr(0, 11) %>
+					</a>
+					<br />
+					人氣: <%= row.pop %>
+				</li>
+			<% }); %>
+		</ul>
+	</div>
+</div>

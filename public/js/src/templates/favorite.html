@@ -1,0 +1,82 @@
+<h2>
+	我的最愛 <small class="hidden-phone">快把常看的漫畫加入我的最愛吧!</small>
+	<% if (favorites.length != 0 ) { %>
+	<a href="<%= BASE_URL %>rss/favorite"><img src="<%= BASE_URL %>/image/rss.jpg"></a>
+	<% } %>
+</h2>
+<hr>
+
+<div id="favorite">
+	<% if (favorites.length != 0 ) { %>
+		<div class="tabbable">
+			<ul class="nav nav-tabs">
+				<li class="active" data-tab="#favorite-unread"><a data-toggle="tab" href="#" data-target="#favorite-unread">未讀</a></li>
+				<li data-tab="#favorite-read"><a data-toggle="tab" href="#" data-target="#favorite-read">已讀</a></li>
+				<li data-tab="#favorite-finished"><a data-toggle="tab" href="#" data-target="#favorite-finished">已完結</a></li>
+			</ul>
+			<div class="tab-content">
+				<ul id="favorite-unread" class="tab-pane unstyled title-img active">
+					<% 
+						var unread_count = 0;
+						_.each(favorites, function (comicRow) { 
+							if (comicRow.stop_renew == '0') {
+								_.each(comicRow.comics, function (row) {
+									if (row['new'] == 1) { 
+										var str = window.widget.comic_slot({
+											'tid': comicRow.tid,
+											'vtid': comicRow.vtid,
+											'title': comicRow.title,
+											'cid': row.cid,
+											'chapter': row.chapter,
+											'pages': row.pages,
+											'dateStr': row.dateStr
+										});
+										%><%= str %><%
+										unread_count ++;
+									}
+								});
+							}
+						});
+						if (unread_count == 0) {
+							%><li style="float:none">您沒有未讀漫畫喔, <a href="#/comics">探索更多漫畫</a>?</li><%
+						}
+					%>
+				</ul>
+				<ul id="favorite-read" class="tab-pane unstyled title-img">
+					<% 
+						_.each(favorites, function (comicRow) { 
+							if (comicRow.stop_renew == '0' && comicRow.comics.length > 0) {
+								var str = window.widget.comic_slot({
+									'tid': comicRow.tid,
+									'vtid': comicRow.vtid,
+									'title': comicRow.title,
+									'cid': comicRow.comics[0].cid || "",
+									'chapter': comicRow.comics[0].chapter || "",
+									'pages': comicRow.comics[0].pages || "",
+									'dateStr': comicRow.comics[0].dateStr || "",
+								});
+								%><%= str %><%
+							}
+						});
+					%>
+				</ul>
+				<ul id="favorite-finished" class="tab-pane unstyled title-img">
+					<% 
+						_.each(favorites, function (comicRow) { 
+							if (comicRow.stop_renew == '1') {
+								var str = window.widget.comic_slot({
+									'tid': comicRow.tid,
+									'vtid': comicRow.vtid,
+									'title': comicRow.title
+								});
+								%><%= str %><%
+							}
+						});
+					%>
+				</ul>
+			</div>
+		</div>
+	<% } else { %>
+	我的最愛還沒有任何漫畫
+	<% } %>
+</div>

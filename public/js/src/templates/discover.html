@@ -1,0 +1,106 @@
+<div class="tabbable hidden-phone">
+<ul class="nav nav-tabs">
+	<li class="active" data-tab="#newest"><a data-toggle="tab" href="#" data-target="#newest">最新連載</a></li>
+	<li data-tab="#lastview"><a data-toggle="tab" href="#" data-target="#lastview">最近閱讀</a></li>
+	<li data-tab="#popular-chapter"><a data-toggle="tab" href="#" data-target="#popular-chapter">人氣章節</a></li>
+	<li data-tab="#popular-title"><a data-toggle="tab" href="#" data-target="#popular-title">人氣漫畫</a></li>
+</ul>
+<div class="tab-content">
+	<div class="active tab-pane" id="newest">
+		<ul class="unstyled title-img">
+			<% _.each(newest, function (row, index) { %>
+				<li>
+					<a data-cid="<%= row.cid %>" class="browse-queue" href="#">
+						<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+						<br />
+						<%= row.title %>
+						<br />
+						<%= row.chapter.substr(0, 11) %>
+						<br />
+						更新: <%= row.dateStr %>
+					</a>
+				</li>
+			<% }); %>
+		</ul>
+	</div>
+	<div class="tab-pane" id="lastview">
+		<ul class="unstyled title-img">
+			<% _.each(lastview, function (row, index) { %>
+				<li>
+					<a data-cid="<%= row.cid %>" class="browse-queue" href="#">
+						<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+						<br />
+						<%= row.title %>
+						<br />
+						<%= row.chapter.substr(0, 11) %>
+						<br />
+						今日人氣: <%= row.pop %>
+					</a>
+				</li>
+			<% }); %>
+		</ul>
+	</div>
+	<div id="popular-chapter" class="tabbable tab-pane">
+		<ul class="nav nav-tabs">
+			<% _.each(populars.chapters, function (pdata, ptype) { %>
+				<% if (ptype == "today" ) { %>
+				<li class="active" data-tab="#pop-chapter-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-chapter-<%= ptype %>"><%= ptype %></a></li>
+				<% } else { %>
+				<li data-tab="#pop-chapter-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-chapter-<%= ptype %>"><%= ptype %></a></li>
+				<% } %>
+			<% }); %>
+		</ul>
+		<div class="tab-content tab-pane">
+		<% _.each(populars.chapters, function (pdata, ptype) { %>
+		<div id="pop-chapter-<%= ptype %>" <% if (ptype == "today" ) { %>class="active tab-pane"<% } else{ %>class="tab-pane"<% } %>>
+			<ul class="unstyled title-img">
+				<% _.each(pdata, function (row, index) { %>
+					<li>
+						<a data-cid="<%= row.cid %>" class="browse-queue" href="#">
+							<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+							<br />
+							<%= row.title %>
+							<br />
+							<%= row.chapter.substr(0, 11) %>
+							<br />
+							人氣: <%= row.pop %>
+						</a>
+					</li>
+				<% }); %>
+			</ul>
+		</div>
+		<% }); %>
+		</div>
+	</div>
+	<div id="popular-title" class="tabbable tab-pane">
+		<ul class="nav nav-tabs">
+			<% _.each(populars.titles, function (pdata, ptype) { %>
+				<% if (ptype == "today" ) { %>
+				<li class="active" data-tab="#pop-title-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-title-<%= ptype %>"><%= ptype %></a></li>
+				<% } else { %>
+				<li data-tab="#pop-title-<%= ptype %>"><a data-toggle="tab" href="#" data-target="#pop-title-<%= ptype %>"><%= ptype %></a></li>
+				<% } %>
+			<% }); %>
+		</ul>
+		<div class="tab-content">
+		<% _.each(populars.titles, function (pdata, ptype) { %>
+		<div id="pop-title-<%= ptype %>" <% if (ptype == "today" ) { %>class="active tab-pane"<% } else{ %>class="tab-pane"<% } %>>
+			<ul class="unstyled title-img">
+				<% _.each(pdata, function (row, index) { %>
+					<li>
+						<a href="#/title/<%= row.tid %>">
+							<img src="<%= thumbnail %><%= row.tid %>" alt="" />
+							<br />
+							<%= row.title %>
+							<br />
+							人氣: <%= row.pop %>
+						</a>
+					</li>
+				<% }); %>
+			</ul>
+		</div>
+		<% }); %>
+		</div>
+	</div>
+</div>
+</div>

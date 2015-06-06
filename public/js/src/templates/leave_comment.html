@@ -1,0 +1,8 @@
+<% if (typeof text !== "undefined") { %><div class="span<%= span %> uneditable-input" style=" margin: 10px"><%= text %></div><% } %>
+<div class="span11 leave-comment" style="display:none; margin: 10px" data-id="<%= id %>" data-parent_id="<%= parent_id %>">
+	<textarea class="span12"><%= (typeof value !== "undefined" ? value : "" ) %></textarea>
+	<div class="span12">
+		<button class="btn btn-success success">張貼留言</button>
+		<button class="btn cancel<%= (typeof text === "undefined" ? "-edit" : "") %>">取消</button>
+	</div>
+</div>

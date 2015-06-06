@@ -1,0 +1,25 @@
+<% if (data.comics && data.comics.length) { %>
+	<h2>搜尋結果：漫畫</h2>
+	<table class="table table-striped">
+		<tbody>
+		<% _.each(data.comics, function (val) { %>
+			<tr><td>
+				<a href="#/vtitle/<%= val.vtid %>"><%= val.title %></a>
+			</td></tr>
+		<% }); %>
+		</tbody>
+	</table>
+<% } %>
+
+<% if (data.authors && data.authors.length) { %>
+	<h2>搜尋結果：作者</h2>
+	<table class="table table-striped">
+		<tbody>
+		<% _.each(data.authors, function (val) { %>
+			<tr><td>
+				<a href="#/author/<%= val.id %>"><%= val.author_name %></a>
+			</td></tr>
+		<% }); %>
+		</tbody>
+	</table>
+<% } %>
