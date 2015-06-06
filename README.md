@@ -29,3 +29,6 @@
     + run private/script/init.sh to fetch the comic index and chapters
 + cronjobs
 	+ add cronjobs corresponded to private/script/cron-\*
+
+## Setup via Docker (for development only, just few steps)
+See [dockerfile-skycomic](https://github.com/skycomic-org/dockerfile-skycomic)
