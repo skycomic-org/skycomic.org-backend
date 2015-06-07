@@ -25,10 +25,11 @@ class CompositeTest extends AbstractDriverTest
     protected function getOptions()
     {
         $options = array();
-        $options['drivers'][] = new Ephemeral(array());
-        $options['drivers'][] = new Ephemeral(array());
-        $options['drivers'][] = new Ephemeral(array());
+        $options['drivers'][] = new Ephemeral();
+        $options['drivers'][] = new Ephemeral();
+        $options['drivers'][] = new Ephemeral();
         $this->subDrivers = $options['drivers'];
+
         return $options;
     }
 
@@ -76,9 +77,7 @@ class CompositeTest extends AbstractDriverTest
             $key = array('base', $type);
             $return = $driver->getData($key);
 
-
             $this->assertTrue(is_array($return), 'getData ' . $type . ' returns array');
-
 
             $this->assertArrayHasKey('expiration', $return, 'getData ' . $type . ' has expiration');
             $this->assertLessThanOrEqual($this->expiration, $return['expiration'], 'getData ' . $type . ' returns same expiration that is equal to or sooner than the one passed.');
@@ -89,5 +88,4 @@ class CompositeTest extends AbstractDriverTest
             $this->assertEquals($value, $return['data'], 'getData ' . $type . ' returns same item as stored');
         }
     }
-
 }

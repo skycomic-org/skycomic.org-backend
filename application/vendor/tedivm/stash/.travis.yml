@@ -1,12 +1,28 @@
 language: php
 
-php: 
+php:
     - 5.3
     - 5.4
+    - 5.5
+    - 5.6
+    - hhvm
+    - hhvm-nightly
 
 before_script:
-    - composer install --dev
-    - phpenv config-add tests/php_extensions.ini
+    - composer self-update && composer install --dev
+    - tests/travis/php_setup.sh
+    - tests/travis/redis_setup.sh
 
-script: phpunit --verbose --coverage-text
+script: ./tests/runTests.sh
 
+after_script:
+  - php vendor/bin/coveralls -v
+
+services:
+  - redis-server
+  - memcached
+
+matrix:
+    fast_finish: true
+    allow_failures:
+      - php: hhvm-nightly

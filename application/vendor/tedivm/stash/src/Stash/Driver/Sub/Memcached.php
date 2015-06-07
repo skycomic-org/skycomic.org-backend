@@ -11,10 +11,10 @@
 
 namespace Stash\Driver\Sub;
 
-use Stash\Exception\MemcacheException;
 use Stash\Exception\RuntimeException;
 
 /**
+ * @internal
  * @package Stash
  * @author  Robert Hafner <tedivm@tedivm.com>
  */
@@ -25,7 +25,19 @@ class Memcached
      */
     protected $memcached;
 
-    public function initialize($servers, array $options = array())
+    /**
+     * Constructs the Memcached subdriver.
+     *
+     * Takes an array of servers, with array containing another array with the server, port and weight.
+     * array(array( '127.0.0.1', 11211, 20), array( '192.168.10.12', 11213, 80), array( '192.168.10.12', 11211, 80));
+     *
+     * Takes an array of options which map to the "\Memcached::OPT_" settings (\Memcached::OPT_COMPRESSION => "compression").
+     *
+     * @param  array                             $servers
+     * @param  array                             $options
+     * @throws \Stash\Exception\RuntimeException
+     */
+    public function __construct($servers = array(), $options = array())
     {
         // build this array here instead of as a class variable since the constants are only defined if the extension
         // exists
@@ -47,12 +59,16 @@ class Memcached
                             'RECV_TIMEOUT',
                             'POLL_TIMEOUT',
                             'CACHE_LOOKUPS',
-                            'SERVER_FAILURE_LIMIT'
+                            'SERVER_FAILURE_LIMIT',
+                            'CLIENT_MODE'
         );
 
         $memcached = new \Memcached();
 
-        $memcached->addServers($servers);
+        $serverList = $memcached->getServerList();
+        if (empty($serverList)) {
+            $memcached->addServers($servers);
+        }
 
         foreach ($options as $name => $value) {
             $name = strtoupper($name);
@@ -118,7 +134,7 @@ class Memcached
                     break;
             }
 
-            if(!@$memcached->setOption(constant('\Memcached::OPT_' . $name), $value)) {
+            if (!@$memcached->setOption(constant('\Memcached::OPT_' . $name), $value)) {
                 throw new RuntimeException('Memcached option Memcached::OPT_' . $name . ' not accepted by memcached extension.');
             }
         }
@@ -126,14 +142,29 @@ class Memcached
         $this->memcached = $memcached;
     }
 
+    /**
+     * Stores the data in memcached.
+     *
+     * @param  string   $key
+     * @param  mixed    $value
+     * @param  null|int $expire
+     * @return bool
+     */
     public function set($key, $value, $expire = null)
     {
-        if(isset($expire) && $expire < time()) {
+        if (isset($expire) && $expire < time()) {
             return true;
         }
+
         return $this->memcached->set($key, array('data' => $value, 'expiration' => $expire), $expire);
     }
 
+    /**
+     * Retrieves the data from memcached.
+     *
+     * @param  string $key
+     * @return mixed
+     */
     public function get($key)
     {
         $value = $this->memcached->get($key);
@@ -144,8 +175,16 @@ class Memcached
         return $value;
     }
 
+    /**
+     * This function emulates runs the cas memcache functionlity.
+     *
+     * @param  string $key
+     * @param  mixed  $value
+     * @return mixed
+     */
     public function cas($key, $value)
     {
+        $token = null;
         if (($rValue = $this->memcached->get($key, null, $token)) !== false) {
             return $rValue;
         }
@@ -155,21 +194,37 @@ class Memcached
         } else {
             $this->memcached->cas($token, $key, $value);
         }
+
         return $value;
     }
 
+    /**
+     * Increments the key and returns the new value.
+     *
+     * @param $key
+     * @return int
+     */
     public function inc($key)
     {
         $this->cas($key, 0);
+
         return $this->memcached->increment($key);
     }
 
+    /**
+     * Flushes memcached.
+     */
     public function flush()
     {
         $this->memcached->flush();
     }
 
-    static public function isAvailable()
+    /**
+     * Returns true if the Memcached extension is installed.
+     *
+     * @return bool
+     */
+    public static function isAvailable()
     {
         return class_exists('Memcached', false);
     }

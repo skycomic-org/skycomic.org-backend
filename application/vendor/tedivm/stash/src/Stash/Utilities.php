@@ -11,8 +11,9 @@
 
 namespace Stash;
 
-use Stash\Driver\DriverInterface;
 use Stash\Exception\RuntimeException;
+use Stash\Exception\InvalidArgumentException;
+use Stash\Interfaces\DriverInterface;
 
 /**
  * StashUtilities contains static functions used throughout the Stash project, both by core classes and drivers.
@@ -26,7 +27,7 @@ class Utilities
      * Various drivers use this to define what kind of encoding to use on objects being cached. It needs to be revamped
      * a bit.
      */
-    static function encoding($data)
+    public static function encoding($data)
     {
         if (is_scalar($data)) {
             if (is_bool($data)) {
@@ -50,7 +51,7 @@ class Utilities
     /**
      * Uses the encoding function to define an encoding and uses it on the data. This system is going to be revamped.
      */
-    static function encode($data)
+    public static function encode($data)
     {
         switch (self::encoding($data)) {
             case 'bool':
@@ -63,6 +64,7 @@ class Utilities
             case 'none':
             default:
         }
+
         return $data;
     }
 
@@ -70,7 +72,7 @@ class Utilities
      * Takes a piece of data encoded with the 'encode' function and returns it's actual value.
      *
      */
-    static function decode($data, $method)
+    public static function decode($data, $method)
     {
         switch ($method) {
             case 'bool':
@@ -84,6 +86,7 @@ class Utilities
             case 'none':
             default:
         }
+
         return $data;
     }
 
@@ -92,10 +95,10 @@ class Utilities
      * of last resort and can cause problems if one library is shared by multiple projects. The directory returned
      * resides in the system's temp folder and is specific to each Stash installation and driver.
      *
-     * @param DriverInterface $driver
-     * @return string Path for Stash files
+     * @param  DriverInterface $driver
+     * @return string          Path for Stash files
      */
-    static function getBaseDirectory(DriverInterface $driver = null)
+    public static function getBaseDirectory(DriverInterface $driver = null)
     {
         $tmp = rtrim(sys_get_temp_dir(), '/\\') . '/';
 
@@ -114,12 +117,14 @@ class Utilities
     /**
      * Deletes a directory and all of its contents.
      *
-     * @param string $file Path to file or directory.
-     * @return bool Returns true on success, false otherwise.
+     * @param  string $file Path to file or directory.
+     * @param  bool $cleanParent Whether to prune empty parent directories or not.
+     * @throws Exception\RuntimeException
+     * @return bool                       Returns true on success, false otherwise.
      */
-    static function deleteRecursive($file)
+    public static function deleteRecursive($file, $cleanParent = false)
     {
-        if (substr($file, 0, 1) !== '/' && substr($file, 1, 2) !== ':\\') {
+        if (!preg_match('/^(?:\/|\\\\|\w:\\\\|\w:\/).*$/', $file)) {
             throw new RuntimeException('deleteRecursive function requires an absolute path.');
         }
 
@@ -131,10 +136,15 @@ class Utilities
         $filePath = rtrim($file, ' /');
 
         if (is_dir($filePath)) {
-            $directoryIt = new \RecursiveDirectoryIterator($filePath);
+            $currentPerms = fileperms($filePath);
+            $currentOwner = fileowner($filePath);
+            $parentPath = dirname($filePath);
 
+            $directoryIt = new \RecursiveDirectoryIterator($filePath);
             foreach (new \RecursiveIteratorIterator($directoryIt, \RecursiveIteratorIterator::CHILD_FIRST) as $file) {
                 $filename = $file->getPathname();
+
+                // Clear out children if this is a directory.
                 if ($file->isDir()) {
                     $dirFiles = scandir($file->getPathname());
                     if ($dirFiles && count($dirFiles) == 2) {
@@ -145,16 +155,34 @@ class Utilities
                     continue;
                 }
 
-
                 if (file_exists($filename)) {
-                    unlink($filename);
+                    if ($file->isDir()) {
+                        rmdir($filename);
+                    } else {
+                        unlink($filename);
+                    }
                 }
-
             }
+
             unset($directoryIt);
 
             if (is_dir($filePath)) {
                 rmdir($filePath);
+            }
+
+
+            if ($cleanParent && static::checkForEmptyDirectory($parentPath)) {
+                $parentPerms = fileperms($parentPath);
+                $parentOwner = fileowner($parentPath);
+
+                if ($currentPerms == $parentPerms && $currentOwner == $parentOwner) {
+                    $grandParentPath = dirname($parentPath);
+                    if ($parentOwner = fileowner($grandParentPath)) {
+                        if (is_writable($grandParentPath) && $parentPerms == fileperms($grandParentPath)) {
+                            rmdir($parentPath);
+                        }
+                    }
+                }
             }
 
             return true;
@@ -165,15 +193,60 @@ class Utilities
         return false;
     }
 
-    static function normalizeKeys($keys, $hash = 'md5')
+    public static function normalizeKeys($keys, $hash = 'md5')
     {
         $pKey = array();
         foreach ($keys as $keyPiece) {
             $prefix = substr($keyPiece, 0, 1) == '@' ? '@' : '';
-            //$pKeyPiece = $prefix . dechex(crc32($keyPiece));
             $pKeyPiece = $prefix . $hash($keyPiece);
             $pKey[] = $pKeyPiece;
         }
+
         return $pKey;
+    }
+
+    /**
+     * Checks to see whether the requisite permissions are available on the specified path.
+     *
+     * @throws Exception\RuntimeException
+     * @throws Exception\InvalidArgumentException
+     */
+    public static function checkFileSystemPermissions($path = null, $permissions)
+    {
+        if (!isset($path)) {
+            throw new RuntimeException('Cache path was not set correctly.');
+        }
+
+        if (file_exists($path) && !is_dir($path)) {
+            throw new InvalidArgumentException('Cache path is not a directory.');
+        }
+
+        if (!is_dir($path) && !@mkdir($path, $permissions, true)) {
+            throw new InvalidArgumentException('Failed to create cache path.');
+        }
+
+        if (!is_writable($path)) {
+            throw new InvalidArgumentException('Cache path is not writable.');
+        }
+    }
+
+    /**
+     * Checks to see if a directory is empty.
+     *
+     * @param  string $path
+     * @return bool
+     */
+    public static function checkForEmptyDirectory($path)
+    {
+        $empty = true;
+        $dir = opendir($path);
+        while ($file = readdir($dir)) {
+            if ($file != '.' && $file != '..') {
+                $empty = false;
+                break;
+            }
+        }
+        closedir($dir);
+        return $empty;
     }
 }

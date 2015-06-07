@@ -15,6 +15,7 @@ use Stash;
 use Stash\Exception\RuntimeException;
 use Stash\Driver\Sub\Memcache as SubMemcache;
 use Stash\Driver\Sub\Memcached as SubMemcached;
+use Stash\Interfaces\DriverInterface;
 
 /**
  * Memcache is a wrapper around the popular memcache server. Memcache supports both memcache php
@@ -32,7 +33,38 @@ class Memcache implements DriverInterface
      */
     protected $memcache;
 
-    protected $disabled = false;
+    /**
+     * Cache of calculated keys.
+     *
+     * @var array
+     */
+    protected $keyCache = array();
+
+    /**
+     * Timestamp of last time the key cache was updated.
+     *
+     * @var int timestamp
+     */
+    protected $keyCacheTime = 0;
+
+    /**
+     * Limit
+     *
+     * @var int seconds
+     */
+    protected $keyCacheTimeLimit = 1;
+
+    /**
+     * Initializes the driver.
+     *
+     * @throws RuntimeException 'Extension is not installed.'
+     */
+    public function __construct()
+    {
+        if (!static::isAvailable()) {
+            throw new RuntimeException('Extension is not installed.');
+        }
+    }
 
     /**
      *
@@ -47,48 +79,80 @@ class Memcache implements DriverInterface
      * Memcached::OPT_COMPRESSION) and its respective option. Please see the php manual for the specific options
      * (http://us2.php.net/manual/en/memcache.constants.php)
      *
+     *
      * @param array $options
+     *
+     * @throws RuntimeException
      */
-    public function __construct(array $options = array())
+    public function setOptions(array $options = array())
     {
         if (!isset($options['servers'])) {
             $options['servers'] = array('127.0.0.1', 11211);
         }
-
-        if (is_scalar($options['servers'][0])) {
-            $servers = array($options['servers']);
-        } else {
-            $servers = $options['servers'];
-        }
+        $servers = $this->normalizeServerConfig($options['servers']);
 
         if (!isset($options['extension'])) {
             $options['extension'] = 'any';
         }
 
+        if (isset($options['keycache_limit']) && is_numeric($options['keycache_limit'])) {
+            $this->keyCacheTimeLimit = $options['keycache_limit'];
+        }
+
         $extension = strtolower($options['extension']);
 
         if (class_exists('Memcached', false) && $extension != 'memcache') {
-            $this->memcache = new SubMemcached();
+            $this->memcache = new SubMemcached($servers, $options);
         } elseif (class_exists('Memcache', false) && $extension != 'memcached') {
-            $this->memcache = new SubMemcache();
+            $this->memcache = new SubMemcache($servers);
         } else {
             throw new RuntimeException('No memcache extension available.');
         }
+    }
 
-        $this->memcache->initialize($servers, $options);
+    protected function normalizeServerConfig($servers)
+    {
+        if (is_scalar($servers[0])) {
+            $servers = array($servers);
+        }
+
+        $normalizedServers = array();
+        foreach ($servers as $server) {
+            $host = '127.0.0.1';
+            if (isset($server['host'])) {
+                $host = $server['host'];
+            } elseif (isset($server[0])) {
+                $host = $server[0];
+            }
+
+            $port = '11211';
+            if (isset($server['port'])) {
+                $port = $server['port'];
+            } elseif (isset($server[1])) {
+                $port = $server[1];
+            }
+
+            $weight = null;
+            if (isset($server['weight'])) {
+                $weight = $server['weight'];
+            } elseif (isset($server[2])) {
+                $weight = $server[2];
+            }
+            $normalizedServers[] = array($host, $port, $weight);
+        }
+
+        return $normalizedServers;
     }
 
     /**
-     * Empty destructor to maintain a standardized interface across all drivers.
-     *
+     * {@inheritdoc}
      */
     public function __destruct()
     {
     }
 
     /**
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getData($key)
     {
@@ -96,11 +160,7 @@ class Memcache implements DriverInterface
     }
 
     /**
-     *
-     * @param array $key
-     * @param array $data
-     * @param int $expiration
-     * @return bool
+     * {@inheritdoc}
      */
     public function storeData($key, $data, $expiration)
     {
@@ -108,9 +168,7 @@ class Memcache implements DriverInterface
     }
 
     /**
-     *
-     * @param null|array $key
-     * @return bool
+     * {@inheritdoc}
      */
     public function clear($key = null)
     {
@@ -124,26 +182,40 @@ class Memcache implements DriverInterface
             $this->makeKeyString($key);
         }
         $this->keyCache = array();
+
         return true;
     }
 
     /**
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function purge()
     {
         return true;
     }
 
+    /**
+     * Turns a key array into a key string. This includes running the indexing functions used to manage the memcached
+     * hierarchical storage.
+     *
+     * When requested the actual path, rather than a normalized value, is returned.
+     *
+     * @param  array  $key
+     * @param  bool   $path
+     * @return string
+     */
     protected function makeKeyString($key, $path = false)
     {
-        // array(name, sub);
-        // a => name, b => sub;
-
         $key = \Stash\Utilities::normalizeKeys($key);
 
-        $keyString = 'cache:::';
+        $keyString = ':cache:::';
+        $pathKey = ':pathdb::';
+        $time = microtime(true);
+        if (($time - $this->keyCacheTime) >= $this->keyCacheTimeLimit) {
+            $this->keyCacheTime = $time;
+            $this->keyCache = array();
+        }
+
         foreach ($key as $name) {
             //a. cache:::name
             //b. cache:::name0:::sub
@@ -169,7 +241,10 @@ class Memcache implements DriverInterface
         return $path ? $pathKey : md5($keyString);
     }
 
-    static public function isAvailable()
+    /**
+     * {@inheritdoc}
+     */
+    public static function isAvailable()
     {
         return (SubMemcache::isAvailable() || SubMemcached::isAvailable());
     }

@@ -3,7 +3,7 @@ class Ecache {
 	private $CI;
 	function __construct () {
 		$this->CI = &get_instance();
-		$this->CI->load->driver('cache', array('adapter' => 'apc', 'backup' => 'file'));
+		$this->CI->load->driver('cache', array('adapter' => 'file'));
 	}
 
 	function get ($key, $func = null, $ttl = 600) {

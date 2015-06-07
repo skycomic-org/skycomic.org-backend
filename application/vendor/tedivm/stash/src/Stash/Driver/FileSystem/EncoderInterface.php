@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-/*
-namespace Stash\Test\Driver;
+namespace Stash\Driver\FileSystem;
 
-class XcacheTest extends AbstractDriverTest
+interface EncoderInterface
 {
-    protected $driverClass = 'Stash\Driver\Xcache';
+    public function deserialize($path);
+    public function serialize($key, $data);
+    public function getExtension();
 }
-*/

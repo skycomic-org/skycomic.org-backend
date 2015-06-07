@@ -22,9 +22,9 @@ namespace Stash\Session;
 // php versions involved.
 
 // @codeCoverageIgnoreStart
-if(version_compare(phpversion(), '5.4.0', '>=')){
-    interface SessionHandlerInterface extends \SessionHandlerInterface {}
-}else{
-    interface SessionHandlerInterface {}
+if (version_compare(phpversion(), '5.4.0', '>=')) {
+    include('SessionHandlerInterface_Modern.php');
+} else {
+    include('SessionHandlerInterface_Legacy.php');
 }
-//@codeCoverageIgnoreStart
+// @codeCoverageIgnoreEnd

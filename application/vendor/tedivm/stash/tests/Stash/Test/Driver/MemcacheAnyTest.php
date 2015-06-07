@@ -11,6 +11,7 @@
 
 namespace Stash\Test\Driver;
 
+use Stash\Test\Stubs\PoolGetDriverStub;
 use Stash\Driver\Memcache;
 use Stash\Item;
 
@@ -30,11 +31,13 @@ class MemcacheAnyTest extends \PHPUnit_Framework_TestCase
 
         if (!$driverClass::isAvailable()) {
             $this->markTestSkipped('Driver class unsuited for current environment');
+
             return;
         }
 
         if (!($sock = @fsockopen($this->servers[0], $this->servers[1], $errno, $errstr, 1))) {
             $this->markTestSkipped('Memcache tests require memcache server');
+
             return;
         }
 
@@ -47,9 +50,15 @@ class MemcacheAnyTest extends \PHPUnit_Framework_TestCase
 
         $options = array();
         $options['servers'][] = array('127.0.0.1', '11211', '50');
-        $driver = new Memcache($options);
+        $driver = new Memcache();
+        $driver->setOptions($options);
 
-        $stash = new Item($driver, $key);
-        $this->assertTrue($stash->set($key), 'Able to load and store with unconfigured extension.');
+        $item = new Item();
+        $poolStub = new PoolGetDriverStub();
+        $poolStub->setDriver($driver);
+        $item->setPool($poolStub);
+
+        $item->setKey($key);
+        $this->assertTrue($item->set($key), 'Able to load and store with unconfigured extension.');
     }
 }

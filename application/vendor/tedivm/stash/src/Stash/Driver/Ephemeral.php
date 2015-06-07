@@ -12,6 +12,7 @@
 namespace Stash\Driver;
 
 use Stash;
+use Stash\Interfaces\DriverInterface;
 
 /**
  * The ephemeral class exists to assist with testing the main Stash class. Since this is a very minimal driver we can
@@ -22,40 +23,68 @@ use Stash;
  */
 class Ephemeral implements DriverInterface
 {
-
+    /**
+     * Contains the cached data.
+     *
+     * @var array
+     */
     protected $store = array();
 
-    public function __construct(array $options = array())
+    /**
+     * Has no options.
+     *
+     * @param array $options
+     */
+    public function setOptions(array $options = array())
     {
-
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __destruct()
     {
-
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getData($key)
     {
-        return isset($this->store[$this->getKeyIndex($key)]) ? $this->store[$this->getKeyIndex($key)] : false;
+        $key = $this->getKeyIndex($key);
+
+        return isset($this->store[$key]) ? $this->store[$key] : false;
     }
 
+    /**
+     * Converts the key array into a passed function
+     *
+     * @param  array  $key
+     * @return string
+     */
     protected function getKeyIndex($key)
     {
         $index = '';
         foreach ($key as $value) {
-            $index .= $value . '#';
+            $index .= str_replace('#', '#:', $value) . '#';
         }
 
         return $index;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function storeData($key, $data, $expiration)
     {
         $this->store[$this->getKeyIndex($key)] = array('data' => $data, 'expiration' => $expiration);
+
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function clear($key = null)
     {
         if (!isset($key)) {
@@ -72,6 +101,9 @@ class Ephemeral implements DriverInterface
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function purge()
     {
         $now = time();
@@ -84,7 +116,14 @@ class Ephemeral implements DriverInterface
         return true;
     }
 
-    static public function isAvailable()
+    /**
+     * This function checks to see if this driver is available. This always returns true because this
+     * driver has no dependencies, begin a wrapper around other classes.
+     *
+     * {@inheritdoc}
+     * @return bool true
+     */
+    public static function isAvailable()
     {
         return true;
     }

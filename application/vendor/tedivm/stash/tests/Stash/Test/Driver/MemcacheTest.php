@@ -11,6 +11,7 @@
 
 namespace Stash\Test\Driver;
 
+use Stash\Test\Stubs\PoolGetDriverStub;
 use Stash\Driver\Memcache;
 use Stash\Item;
 
@@ -24,8 +25,6 @@ class MemcacheTest extends AbstractDriverTest
     protected $extension = 'memcache';
 
     protected $servers = array('127.0.0.1', '11211');
-
-    private $setup = false;
 
     protected function getOptions()
     {
@@ -41,16 +40,19 @@ class MemcacheTest extends AbstractDriverTest
 
             if (!$driverClass::isAvailable()) {
                 $this->markTestSkipped('Driver class unsuited for current environment');
+
                 return;
             }
 
             if (!class_exists(ucfirst($this->extension))) {
                 $this->markTestSkipped('Test requires ' . $this->extension . ' extension');
+
                 return;
             }
 
             if (!($sock = @fsockopen($this->servers[0], $this->servers[1], $errno, $errstr, 1))) {
                 $this->markTestSkipped('Memcache tests require memcache server');
+
                 return;
             }
 
@@ -67,15 +69,26 @@ class MemcacheTest extends AbstractDriverTest
         $options['servers'][] = array('127.0.0.1', '11211', '50');
         $options['servers'][] = array('127.0.0.1', '11211');
         $options['extension'] = $this->extension;
-        $driver = new Memcache($options);
+        $driver = new Memcache();
+        $driver->setOptions($options);
 
-        $stash = new Item($driver, $key);
-        $this->assertTrue($stash->set($key), 'Able to load and store memcache driver using multiple servers');
+        $item = new Item();
+        $poolStub = new PoolGetDriverStub();
+        $poolStub->setDriver($driver);
+        $item->setPool($poolStub);
+        $item->setKey($key);
+
+        $this->assertTrue($item->set($key), 'Able to load and store memcache driver using multiple servers');
 
         $options = array();
         $options['extension'] = $this->extension;
-        $driver = new Memcache($options);
-        $stash = new Item($driver, $key);
-        $this->assertTrue($stash->set($key), 'Able to load and store memcache driver using default server');
+        $driver = new Memcache();
+        $driver->setOptions($options);
+        $item = new Item();
+        $poolStub = new PoolGetDriverStub();
+        $poolStub->setDriver($driver);
+        $item->setPool($poolStub);
+        $item->setKey($key);
+        $this->assertTrue($item->set($key), 'Able to load and store memcache driver using default server');
     }
 }

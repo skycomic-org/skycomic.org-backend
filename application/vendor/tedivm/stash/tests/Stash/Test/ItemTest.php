@@ -11,14 +11,10 @@
 
 namespace Stash\Test;
 
-use Stash\Item;
-use Stash\Utilities;
-use Stash\Driver\Ephemeral;
-
 /**
  * @package Stash
  * @author  Robert Hafner <tedivm@tedivm.com>
  */
-class ItemTest extends AbstractCacheTest
+class ItemTest extends AbstractItemTest
 {
 }

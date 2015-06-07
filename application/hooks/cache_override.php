@@ -7,8 +7,9 @@ class Cache_Override {
 	private $pointer = '-=->';
 
 	function __construct () {
-		$options = array('path' => APPPATH . 'cache/');
-		$driver = new Stash\Driver\Sqlite($options);
+		$driver = new Stash\Driver\FileSystem();
+		$options = array('path' => __DIR__ . '/../cache/');
+		$driver->setOptions($options);
 		$this->stash = new Stash\Pool($driver);
 	}
 

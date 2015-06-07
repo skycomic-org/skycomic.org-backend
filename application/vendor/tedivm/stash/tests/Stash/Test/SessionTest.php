@@ -13,7 +13,6 @@ namespace Stash\Test;
 
 use Stash\Session;
 use Stash\Pool;
-use Stash\Handler\Ephemeral;
 
 /**
  * @package Stash
@@ -21,14 +20,23 @@ use Stash\Handler\Ephemeral;
  */
 class SessionTest extends \PHPUnit_Framework_TestCase
 {
+    protected $testClass = '\Stash\Session';
+    protected $poolClass = '\Stash\Pool';
+
+    protected function setUp()
+    {
+        if (defined('HHVM_VERSION') && version_compare(HHVM_VERSION, '3.0.0', '<')) {
+            $this->markTestSkipped('Sessions not supported on older versions of HHVM.');
+        }
+    }
+
     public function testRegisterHandler()
     {
-
     }
 
     public function testReadAndWrite()
     {
-        $session = new Session(new Pool());
+        $session = $this->getSession();
 
         $this->assertSame('', $session->read('session_id'),
                           'Empty session returns empty string.');
@@ -41,13 +49,13 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testOpen()
     {
-        $pool = new Pool();
+        $pool = $this->getPool();
 
-        $sessionA = new Session($pool);
+        $sessionA = $this->getSession($pool);
         $sessionA->open('first', 'session');
         $sessionA->write('shared_id', "session_a_data");
 
-        $sessionB = new Session($pool);
+        $sessionB = $this->getSession($pool);
         $sessionB->open('second', 'session');
         $sessionB->write('shared_id', "session_b_data");
 
@@ -57,14 +65,13 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($DataA != $DataB,
                           'Sessions with different paths do not share data.');
 
+        $pool = $this->getPool();
 
-        $pool = new Pool();
-
-        $sessionA = new Session($pool);
+        $sessionA = $this->getSession($pool);
         $sessionA->open('shared_path', 'sessionA');
         $sessionA->write('shared_id', "session_a_data");
 
-        $sessionB = new Session($pool);
+        $sessionB = $this->getSession($pool);
         $sessionB->open('shared_path', 'sessionB');
         $sessionB->write('shared_id', "session_b_data");
 
@@ -75,17 +82,16 @@ class SessionTest extends \PHPUnit_Framework_TestCase
                           'Sessions with different names do not share data.');
     }
 
-
     public function testClose()
     {
-        $session = new Session(new Pool());
+        $session = $this->getSession();
         $this->assertTrue($session->close(),
                           'Session was closed');
     }
 
     public function testDestroy()
     {
-        $session = new Session(new Pool());
+        $session = $this->getSession();
 
         $session->write('session_id', 'session_data');
         $session->write('session_id', 'session_data');
@@ -101,18 +107,31 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
     public function testGarbageCollect()
     {
-        $pool = new Pool();
+        $pool = $this->getPool();
 
-        $sessionA = new Session($pool);
+        $sessionA = $this->getSession($pool);
         $sessionA->setOptions(array('ttl' => -30));
         $sessionA->write('session_id', "session_a_data");
 
-        $sessionB = new Session($pool);
+        $sessionB = $this->getSession($pool);
         $sessionB->gc(null);
 
-        $sessionC = new Session($pool);
+        $sessionC = $this->getSession($pool);
         $this->assertSame('', $sessionC->read('session_id'),
                           'Purged session returns empty string.');
     }
 
+    protected function getSession($pool = null)
+    {
+        if (!isset($pool)) {
+            $pool = $this->getPool();
+        }
+
+        return new $this->testClass($pool);
+    }
+
+    protected function getPool()
+    {
+        return new $this->poolClass();
+    }
 }

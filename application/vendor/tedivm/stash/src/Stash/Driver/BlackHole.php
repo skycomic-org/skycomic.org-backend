@@ -11,67 +11,61 @@
 
 namespace Stash\Driver;
 
+use Stash\Interfaces\DriverInterface;
+
 /**
  * This class provides a NULL caching driver, it always takes values, but never saves them
  * Can be used as an default save driver
- * 
+ *
  * @author Benjamin Zikarsky <benjamin.zikarsky@perbility.de>
  */
 class BlackHole implements DriverInterface
 {
-    
-	/**
-	 * NOOP constructor
-	 */
-	public function __construct(array $options = array()) 
-	{
-		// empty
-	}
+    /**
+     * NOOP constructor
+     */
+    public function setOptions(array $options = array())
+    {
+        // empty
+    }
 
-    
-	/* 
-	 * (non-PHPdoc)
-     * @see \Stash\Driver\DriverInterface::clear()
+    /**
+     * {@inheritdoc}
      */
     public function clear($key = null)
     {
         return true;
     }
 
-	/* 
-	 * (non-PHPdoc)
-     * @see \Stash\Driver\DriverInterface::getData()
+    /**
+     * {@inheritdoc}
      */
     public function getData($key)
     {
         return false;
-	}
+    }
 
-	/* 
-	 * (non-PHPdoc)
-     * @see \Stash\Driver\DriverInterface::purge()
+    /**
+     * {@inheritdoc}
      */
     public function purge()
     {
-		return true;
-	}
+        return true;
+    }
 
-	/* 
-	 * (non-PHPdoc)
-     * @see \Stash\Driver\DriverInterface::storeData()
+    /**
+     * {@inheritdoc}
      */
     public function storeData($key, $data, $expiration)
     {
-		return true;
+        return true;
     }
-    
-    /* 
-     * (non-PHPdoc)
-     * @see \Stash\Driver\DriverInterface::isAvailable()
+
+    /**
+     * {@inheritdoc}
      */
     public static function isAvailable()
     {
         return true;
     }
-   
 }

@@ -11,9 +11,10 @@
 
 namespace Stash;
 
-use Stash\Driver\DriverInterface;
 use Stash\Exception\Exception;
-use Stash\Exception\InvalidArgumentException;
+use Stash\Interfaces\DriverInterface;
+use Stash\Interfaces\ItemInterface;
+use Stash\Interfaces\PoolInterface;
 
 /**
  * Stash caches data that has a high generation cost, such as template preprocessing or code that requires a database
@@ -23,12 +24,31 @@ use Stash\Exception\InvalidArgumentException;
  * @package Stash
  * @author  Robert Hafner <tedivm@tedivm.com>
  */
-class Item
+class Item implements ItemInterface
 {
+    /**
+     * @deprecated
+     */
     const SP_NONE         = 0;
+
+    /**
+     * @deprecated
+     */
     const SP_OLD          = 1;
+
+    /**
+     * @deprecated
+     */
     const SP_VALUE        = 2;
+
+    /**
+     * @deprecated
+     */
     const SP_SLEEP        = 3;
+
+    /**
+     * @deprecated
+     */
     const SP_PRECOMPUTE   = 4;
 
     /**
@@ -36,7 +56,7 @@ class Item
      *
      * @var int seconds
      */
-    static public $cacheTime = 432000; // five days
+    public static $cacheTime = 432000; // five days
 
     /**
      * Disables the cache system wide. It is used internally when the storage engine fails or if the cache is being
@@ -44,30 +64,7 @@ class Item
      *
      * @var bool
      */
-    static $runtimeDisable = false;
-
-    /**
-     * Running count of how many times the cache has been called.
-     *
-     * @var int
-     */
-    static $cacheCalls = 0;
-
-    /**
-     * Running count of how many times the cache was able to successfully retrieve current data from the
-     * cache. Combined with the $cacheCalls static variable this can be used to calculate a hit/miss ratio.
-     *
-     * @var int
-     */
-    static $cacheReturns = 0;
-
-    /**
-     * Keeps track of how many times a specific cache item is called. The array index is the string version of the key
-     * and the value is the number of times it has been called.
-     *
-     * @var array
-     */
-    static $queryRecord;
+    public static $runtimeDisable = false;
 
     /**
      * Used internally to mark the class as disabled. Unlike the static runtimeDisable flag this is effective only for
@@ -110,12 +107,34 @@ class Item
     protected $stampedeRunning = false;
 
     /**
+     * The Pool that spawned this instance of the Item..
+     *
+     * @var \Stash\Interfaces\PoolInterface
+     */
+    protected $pool;
+
+    /**
      * The cacheDriver being used by the system. While this class handles all of the higher functions, it's the cache
      * driver here that handles all of the storage/retrieval functionality. This value is set by the constructor.
      *
-     * @var Stash\Driver\DriverInterface
+     * @var \Stash\Interfaces\DriverInterface
      */
     protected $driver;
+
+    /**
+     * If set various then errors and exceptions will get passed to the PSR Compliant logging library. This
+     * can be set using the setLogger() function in this class.
+     *
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Defines the namespace the item lives in.
+     *
+     * @var string|null
+     */
+    protected $namespace = null;
 
     /**
      * This is a flag to see if a valid response is returned. It is set by the getData function and is used by the
@@ -125,36 +144,37 @@ class Item
      */
     private $isHit = null;
 
+
     /**
-     * This constructor is an internal function used by the Pool object when
-     * creating new Item objects. It should not be called directly.
-     *
-     * @internal
-     * @param DriverInterface If no driver is passed the cache is set to script time only.
+     * {@inheritdoc}
      */
-    public function __construct(DriverInterface $driver, $key)
+    public function setPool(PoolInterface $pool)
     {
-        $this->driver = $driver;
+        $this->pool = $pool;
+        $this->setDriver($pool->getDriver());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setKey($key, $namespace = null)
+    {
+        $this->namespace = $namespace;
         $this->setupKey($key);
     }
 
     /**
-     * This disables any IO operations by this object, effectively preventing
-     * the reading and writing of new data.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function disable()
     {
         $this->cacheEnabled = false;
+
         return true;
     }
 
     /**
-     * Returns the key as a string. This is particularly useful when the Item is
-     * returned as a group of Items in an Iterator.
-     *
-     * @return string|bool Returns false if no key is set.
+     * {@inheritdoc}
      */
     public function getKey()
     {
@@ -162,17 +182,16 @@ class Item
     }
 
     /**
-     * Clears the current Item. If hierarchical or "stackable" caching is being
-     * used this function will also remove children Items.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function clear()
     {
         try {
             return $this->executeClear();
         } catch (Exception $e) {
+            $this->logException('Clearing cache caused exception.', $e);
             $this->disable();
+
             return false;
         }
     }
@@ -187,28 +206,22 @@ class Item
     }
 
     /**
-     * Returns the data retrieved from the cache. Since this can return false or
-     * null as a correctly cached value, the return value should not be used to
-     * determine successful retrieval of data- for that use the "isMiss()"
-     * function after call this one. If no value is stored at all then this
-     * function will return null.
-     *
-     * @return mixed|null
+     * {@inheritdoc}
      */
     public function get($invalidation = 0, $arg = null, $arg2 = null)
     {
         try {
             return $this->executeGet($invalidation, $arg, $arg2);
         } catch (Exception $e) {
+            $this->logException('Retrieving from cache caused exception.', $e);
             $this->disable();
+
             return null;
         }
     }
 
     private function executeGet($invalidation, $arg, $arg2)
     {
-        self::$cacheCalls++;
-
         $this->isHit = false;
 
         if ($this->isDisabled()) {
@@ -241,25 +254,17 @@ class Item
 
         $this->validateRecord($invalidation, $record);
 
-        if ($this->isHit) {
-            self::$cacheReturns++;
-            self::$queryRecord[$this->keyString][] = 1;
-        } else {
-            self::$queryRecord[$this->keyString][] = 0;
-        }
-
         return isset($record['data']['return']) ? $record['data']['return'] : null;
     }
 
     /**
-     * Returns true if the cached item needs to be refreshed.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isMiss()
     {
-        if (!isset($this->isHit))
+        if (!isset($this->isHit)) {
             $this->get();
+        }
 
         if ($this->isDisabled()) {
             return true;
@@ -269,14 +274,11 @@ class Item
     }
 
     /**
-     * Enables stampede protection by marking this specific instance of the Item
-     * as the one regenerating the cache.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function lock($ttl = null)
     {
-       if ($this->isDisabled()) {
+        if ($this->isDisabled()) {
             return true;
         }
 
@@ -286,29 +288,26 @@ class Item
 
         $this->stampedeRunning = true;
 
-        $expiration = isset($ttl) && is_numeric($ttl) ? (int)$ttl : $this->defaults['stampede_ttl'];
+        $expiration = isset($ttl) && is_numeric($ttl) ? (int) $ttl : $this->defaults['stampede_ttl'];
 
 
         $spkey = $this->key;
         $spkey[0] = 'sp';
+
         return $this->driver->storeData($spkey, true, time() + $expiration);
     }
 
     /**
-     * Takes and stores data for later retrieval. This data can be any php data,
-     * including arrays and object, except resources and objects which are
-     * unable to be serialized.
-     *
-     * @param mixed $data bool
-     * @param int|DateTime|null $ttl Int is time (seconds), DateTime a future expiration date
-     * @return bool Returns whether the object was successfully stored or not.
+     * {@inheritdoc}
      */
     public function set($data, $ttl = null)
     {
         try {
             return $this->executeSet($data, $ttl);
         } catch (Exception $e) {
+            $this->logException('Setting value in cache caused exception.', $e);
             $this->disable();
+
             return false;
         }
     }
@@ -323,6 +322,7 @@ class Item
             return false;
         }
 
+        $store = array();
         $store['return'] = $data;
         $store['createdOn'] = time();
 
@@ -340,7 +340,6 @@ class Item
         $expiration = $store['createdOn'] + $cacheTime;
 
         if ($cacheTime > 0) {
-            $diff = $cacheTime * 0.15;
             $expirationDiff = rand(0, floor($cacheTime * .15));
             $expiration -= $expirationDiff;
         }
@@ -356,22 +355,19 @@ class Item
     }
 
     /**
-     * Extends the expiration on the current cached item. For some engines this
-     * can be faster than storing the item again.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    public function extendCache()
+    public function extend($ttl = null)
     {
         if ($this->isDisabled()) {
             return false;
         }
 
-        return $this->set($this->get());
+        return $this->set($this->get(), $ttl);
     }
 
     /**
-     * Return true if caching is disabled
+     * {@inheritdoc}
      */
     public function isDisabled()
     {
@@ -380,10 +376,48 @@ class Item
                 || (defined('STASH_DISABLE_CACHE') && STASH_DISABLE_CACHE);
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * Sets the driver this object uses to interact with the caching system.
+     *
+     * @param DriverInterface $driver
+     */
+    protected function setDriver(DriverInterface $driver)
+    {
+        $this->driver = $driver;
+    }
+
+    /**
+     * Logs an exception with the Logger class, if it exists.
+     *
+     * @param  string     $message
+     * @param  \Exception $exception
+     * @return bool
+     */
+    protected function logException($message, $exception)
+    {
+        if (!isset($this->logger)) {
+            return false;
+        }
+
+        $this->logger->critical($message,
+                                array('exception' => $exception,
+                                      'key' => $this->keyString));
+
+        return true;
+    }
 
     /**
      * Returns true if another Item is currently recalculating the cache.
      *
+     * @param  array $key
      * @return bool
      */
     protected function getStampedeFlag($key)
@@ -398,12 +432,12 @@ class Item
                 $sp = false;
             }
         }
+
         return $sp;
     }
 
     /**
-     * Returns the record for the current key, whether that record is pulled from memory or a driver. If there is no
-     * record than an empty array is returned.
+     * Returns the record for the current key. If there is no record than an empty array is returned.
      *
      * @return array
      */
@@ -422,14 +456,17 @@ class Item
      * Decides whether the current data is fresh according to the supplied validation technique. As some techniques
      * actively change the record this function takes that in as a reference.
      *
+     * This function has the ability to change the isHit property as well as the record passed.
+     *
+     * @internal
      * @param array $validation
-     * @param array $record
+     * @param array &$record
      */
     protected function validateRecord($validation, &$record)
     {
         if (is_array($validation)) {
             $argArray = $validation;
-            $invalidation = isset($argArray[0]) ? $argArray[0] : 0;
+            $invalidation = isset($argArray[0]) ? $argArray[0] : Invalidation::PRECOMPUTE;
 
             if (isset($argArray[1])) {
                 $arg = $argArray[1];
@@ -438,6 +475,8 @@ class Item
             if (isset($argArray[2])) {
                 $arg2 = $argArray[2];
             }
+        } else {
+            $invalidation = Invalidation::PRECOMPUTE;
         }
 
         $curTime = microtime(true);
@@ -445,39 +484,46 @@ class Item
         if (isset($record['expiration']) && ($ttl = $record['expiration'] - $curTime) > 0) {
             $this->isHit = true;
 
-            if ($invalidation == self::SP_PRECOMPUTE) {
-                $time = isset($arg) && is_numeric($arg) ? $arg : self::$defaults['precompute_time'];
+            if ($invalidation == Invalidation::PRECOMPUTE) {
+                $time = isset($arg) && is_numeric($arg) ? $arg : $this->defaults['precompute_time'];
 
                 // If stampede control is on it means another cache is already processing, so we return
                 // true for the hit.
                 if ($ttl < $time) {
-                    $this->isHit = (bool)$this->getStampedeFlag($this->key);
+                    $this->isHit = (bool) $this->getStampedeFlag($this->key);
                 }
             }
 
             return;
-
         }
 
-        if (!isset($invalidation) || $invalidation == self::SP_NONE) {
+        if (!isset($invalidation) || $invalidation == Invalidation::NONE) {
             $this->isHit = false;
+
             return;
         }
 
         if (!$this->getStampedeFlag($this->key)) {
             $this->isHit = false;
+
             return;
         }
 
         switch ($invalidation) {
-            case self::SP_VALUE:
-                $record['data']['return'] = $arg;
-                $this->isHit = true;
+            case Invalidation::VALUE:
+                if (!isset($arg)) {
+                    $this->isHit = false;
+
+                    return;
+                } else {
+                    $record['data']['return'] = $arg;
+                    $this->isHit = true;
+                }
                 break;
 
-            case self::SP_SLEEP:
-                $time = isset($arg) && is_numeric($arg) ? $arg : self::$defaults['sleep_time'];
-                $attempts = isset($arg2) && is_numeric($arg2) ? $arg2 : self::$defaults['sleep_attempts'];
+            case Invalidation::SLEEP:
+                $time = isset($arg) && is_numeric($arg) ? $arg : $this->defaults['sleep_time'];
+                $attempts = isset($arg2) && is_numeric($arg2) ? $arg2 : $this->defaults['sleep_attempts'];
 
                 $ptime = $time * 1000;
 
@@ -488,41 +534,87 @@ class Item
                 }
 
                 usleep($ptime);
-                $record['data']['return'] = $this->get(self::SP_SLEEP, $time, $attempts - 1);
+                $record['data']['return'] = $this->get(Invalidation::SLEEP, $time, $attempts - 1);
                 break;
 
-            case self::SP_OLD:
+            case Invalidation::OLD:
                 $this->isHit = true;
                 break;
 
             default:
-            case self::SP_NONE:
+            case Invalidation::NONE:
                 $this->isHit = false;
                 break;
         } // switch($invalidate)
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getCreation()
+    {
+        $record = $this->getRecord();
+        if (!isset($record['data']['createdOn'])) {
+            return false;
+        }
+
+        $dateTime = new \DateTime();
+        $dateTime->setTimestamp($record['data']['createdOn']);
+
+        return $dateTime;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExpiration()
+    {
+        $record = $this->getRecord();
+        if (!isset($record['expiration'])) {
+            return false;
+        }
+
+        $dateTime = new \DateTime();
+        $dateTime->setTimestamp($record['expiration']);
+
+        return $dateTime;
+    }
+
+    /**
+     * This clears out any locks that are present if this Item is prematurely destructed.
+     */
+    public function __destruct()
+    {
+        if (isset($this->stampedeRunning) && $this->stampedeRunning == true) {
+            $spkey = $this->key;
+            $spkey[0] = 'sp';
+            $this->driver->clear($spkey);
+        }
+    }
+
+    /**
      * This function is used by the Pool object while creating this object. It
      * is an internal function an should not be called directly.
      *
-     * @internal
-     * @param string|array $key
+     * @param  array                     $key
+     * @throws \InvalidArgumentException
      */
     protected function setupKey($key)
     {
-        if (is_array($key)) {
-            $this->keyString = implode('/', $key);
-        } else {
-            $this->keyString = $key;
-            $key = trim($key, '/');
-            $key = explode('/', $key);
+        if (!is_array($key)) {
+            throw new \InvalidArgumentException('Item requires keys as arrays.');
         }
 
+        $keyStringTmp = $key;
+        if (isset($this->namespace)) {
+            array_shift($keyStringTmp);
+        }
+
+        $this->keyString = implode('/', $keyStringTmp);
+
         // We implant the namespace "cache" to the front of every stash object's key. This allows us to segment
-        // off the user data, and user other 'namespaces' for internal purposes.
+        // off the user data, and use other 'namespaces' for internal purposes.
         array_unshift($key, 'cache');
         $this->key = array_map('strtolower', $key);
     }
-
 }

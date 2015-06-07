@@ -9,13 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Stash\Test\Exception;
+namespace Stash\Test\Stubs;
 
 use Stash;
-use Stash\Driver\DriverInterface;
+use Stash\Test\Exception\TestException;
+use Stash\Interfaces\DriverInterface;
 
 /**
- * ExceptionTest is used for testing how Stash reacts to thrown errors. Every function but the constructor throws
+ * DriverExceptionStub is used for testing how Stash reacts to thrown errors. Every function but the constructor throws
  * an exception.
  *
  * @package Stash
@@ -23,13 +24,12 @@ use Stash\Driver\DriverInterface;
  *
  * @codeCoverageIgnore
  */
-class ExceptionTest implements DriverInterface
+class DriverUnavailableStub implements DriverInterface
 {
     protected $store = array();
 
-    public function __construct(array $options = array())
+    public function setOptions(array $options = array())
     {
-
     }
 
     public function __destruct()
@@ -63,11 +63,11 @@ class ExceptionTest implements DriverInterface
 
     public function canEnable()
     {
-        return (defined('TESTING') && TESTING);
+        return false;
     }
 
-    static public function isAvailable()
+    public static function isAvailable()
     {
-        return (defined('TESTING') && TESTING);
+        return false;
     }
 }

@@ -12,20 +12,18 @@
 namespace Stash\Driver\Sub;
 
 /**
+ * Class SqlitePDO2
+ *
+ * This SQLite subdriver uses PDO and SQLite2.
+ *
+ * @internal
  * @package Stash
  * @author  Robert Hafner <tedivm@tedivm.com>
  */
 class SqlitePdo2 extends SqlitePdo
 {
-    static public function isAvailable()
-    {
-        $drivers = class_exists('\PDO', false) ? \PDO::getAvailableDrivers() : array();
-        return in_array('sqlite2', $drivers);
-    }
-
-    protected function buildDriver()
-    {
-        $db = new \PDO('sqlite2:' . $this->path);
-        return $db;
-    }
+    /**
+     * {@inheritdoc}
+     */
+    protected static $pdoDriver = 'sqlite2';
 }

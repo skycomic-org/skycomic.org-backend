@@ -15,14 +15,35 @@ use Stash\Exception\RuntimeException;
 use Stash\Exception\InvalidArgumentException;
 
 /**
+ * Class Sqlite
+ *
+ * This SQLite subdriver is used by the main Sqlite driver for interacting with the SQLite extension.
+ *
+ * @internal
  * @package Stash
  * @author  Robert Hafner <tedivm@tedivm.com>
  */
 class Sqlite
 {
+    /**
+     * Directory where the SQLite databases are stored.
+     *
+     * @var string
+     */
     protected $path;
+
+    /**
+     * Output of buildDriver, used to interact with the relevant SQLite extension.
+     *
+     * @var \SQLiteDatabase
+     */
     protected $driver;
 
+    /**
+     * The SQLite query used to generate the database.
+     *
+     * @var string
+     */
     protected $creationSql = 'CREATE TABLE cacheStore (
                               key TEXT UNIQUE ON CONFLICT REPLACE,
                               expiration INTEGER,
@@ -31,12 +52,40 @@ class Sqlite
                               );
                               CREATE INDEX keyIndex ON cacheStore (key);';
 
-
+    /**
+     * File permissions of new SQLite databases.
+     *
+     * @var string
+     */
     protected $filePermissions;
+
+    /**
+     * File permissions of new directories leading to SQLite databases.
+     *
+     * @var string
+     */
     protected $dirPermissions;
+
+    /**
+     * Amounts of time to wait for the SQLite engine before timing out.
+     *
+     * @var int milliseconds
+     */
     protected $busyTimeout;
+
+    /**
+     * The appropriate response code to use when retrieving data.
+     *
+     * @var int
+     */
     protected $responseCode;
 
+    /**
+     * @param string $path
+     * @param string $directoryPermission
+     * @param string $filePermission
+     * @param int    $busyTimeout
+     */
     public function __construct($path, $directoryPermission, $filePermission, $busyTimeout)
     {
         $this->path = $path;
@@ -46,11 +95,20 @@ class Sqlite
         $this->responseCode = 1; // SQLITE_ASSOC
     }
 
+    /**
+     * Clear out driver, closing file sockets.
+     */
     public function __destruct()
     {
         $this->driver = null;
     }
 
+    /**
+     * Retrieves data from cache store.
+     *
+     * @param  string     $key
+     * @return bool|mixed
+     */
     public function get($key)
     {
         if (!($driver = $this->getDriver())) {
@@ -69,6 +127,14 @@ class Sqlite
         return false;
     }
 
+    /**
+     * Stores data in sqlite database.
+     *
+     * @param  string $key
+     * @param  mixed  $value
+     * @param  int    $expiration
+     * @return bool
+     */
     public function set($key, $value, $expiration)
     {
         if (!($driver = $this->getDriver())) {
@@ -77,19 +143,24 @@ class Sqlite
 
         $data = base64_encode(serialize($value));
 
-        $resetBusy = false;
         $contentLength = strlen($data);
         if ($contentLength > 100000) {
-            $resetBusy = true;
             $this->setTimeout($this->busyTimeout * (ceil($contentLength / 100000))); // .5s per 100k
         }
 
-        $query = $driver->query("INSERT INTO cacheStore (key, expiration, data)
+        $driver->query("INSERT INTO cacheStore (key, expiration, data)
                                   VALUES ('{$key}', '{$expiration}', '{$data}')");
 
         return true;
     }
 
+    /**
+     * Clears data from database. If a key is defined only it and it's children are removed. If everything is set to be
+     * cleared then the database itself is deleted off disk.
+     *
+     * @param  null|string $key
+     * @return bool
+     */
     public function clear($key = null)
     {
         // return true if the cache is already empty
@@ -103,11 +174,17 @@ class Sqlite
             $this->driver = false;
             \Stash\Utilities::deleteRecursive($this->path);
         } else {
-            $query = $driver->query("DELETE FROM cacheStore WHERE key LIKE '{$key}%'");
+            $driver->query("DELETE FROM cacheStore WHERE key LIKE '{$key}%'");
         }
+
         return true;
     }
 
+    /**
+     * Old data is removed and the "vacuum" operation is run.
+     *
+     * @return bool
+     */
     public function purge()
     {
         if (!($driver = $this->getDriver())) {
@@ -116,25 +193,43 @@ class Sqlite
 
         $driver->query('DELETE FROM cacheStore WHERE expiration < ' . time());
         $driver->query('VACUUM');
+
         return true;
     }
 
+    /**
+     * Filesystem integrity and permissions are checked and exceptions thrown for relevant issues.
+     *
+     * @throws \Stash\Exception\InvalidArgumentException
+     * @throws \Stash\Exception\RuntimeException
+     */
     public function checkFileSystemPermissions()
     {
-        if(!isset($this->path)) {
+        if (!isset($this->path)) {
             throw new RuntimeException('No cache path is set.');
         }
 
-        if(!is_writable($this->path) && !is_writable(dirname($this->path))) {
+        if (!is_writable($this->path) && !is_writable(dirname($this->path))) {
             throw new InvalidArgumentException('The cache sqlite file is not writable.');
         }
     }
 
-    static public function isAvailable()
+    /**
+     * Returns true if the SQLiteDatabase class exists.
+     *
+     * @return bool
+     */
+    public static function isAvailable()
     {
         return class_exists('SQLiteDatabase', false);
     }
 
+    /**
+     * Tells the SQLite driver how long to wait for data to be written.
+     *
+     * @param  int  $milliseconds
+     * @return bool
+     */
     protected function setTimeout($milliseconds)
     {
         if (!($driver = $this->getDriver())) {
@@ -143,6 +238,12 @@ class Sqlite
         $driver->busyTimeout($milliseconds);
     }
 
+    /**
+     * Retrieves the relevant SQLite driver, creating the database file if necessary.
+     *
+     * @return \SQLiteDatabase
+     * @throws \Stash\Exception\RuntimeException
+     */
     protected function getDriver()
     {
         if (isset($this->driver) && $this->driver !== false) {
@@ -158,13 +259,6 @@ class Sqlite
             $pos2 = strrpos($this->path, '\\');
 
             if ($pos1 || $pos2) {
-                if ($pos1 === false) {
-                    $pos = $pos2;
-                }
-                if ($pos2 === false) {
-                    $pos = $pos1;
-                }
-
                 $pos = $pos1 >= $pos2 ? $pos1 : $pos2;
                 $dir = substr($this->path, 0, $pos);
             }
@@ -191,11 +285,18 @@ class Sqlite
         return $db;
     }
 
+    /**
+     * Creates the actual database driver itself.
+     *
+     * @return \SQLiteDatabase
+     * @throws \Stash\Exception\RuntimeException
+     */
     protected function buildDriver()
     {
         if (!$db = new \SQLiteDatabase($this->path, $this->filePermissions, $errorMessage)) {
             throw new RuntimeException('Unable to open SQLite Database: ' . $errorMessage);
         }
+
         return $db;
     }
 }

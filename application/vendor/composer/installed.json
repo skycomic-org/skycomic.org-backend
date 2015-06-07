@@ -1,28 +1,33 @@
 [
     {
         "name": "tedivm/stash",
-        "version": "v0.10.3",
-        "version_normalized": "0.10.3.0",
+        "version": "v0.12.3",
+        "version_normalized": "0.12.3.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/tedivm/Stash.git",
-            "reference": "v0.10.3"
+            "url": "https://github.com/tedious/Stash.git",
+            "reference": "5b830f6a0e4626e5cd02c862d37721ca16820a13"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/tedivm/Stash/zipball/v0.10.3",
-            "reference": "v0.10.3",
+            "url": "https://api.github.com/repos/tedious/Stash/zipball/5b830f6a0e4626e5cd02c862d37721ca16820a13",
+            "reference": "5b830f6a0e4626e5cd02c862d37721ca16820a13",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2013-03-30 23:24:06",
+        "require-dev": {
+            "fabpot/php-cs-fixer": "1.1.*",
+            "phpunit/phpunit": "4.3.*",
+            "satooshi/php-coveralls": "dev-master"
+        },
+        "time": "2015-01-17 07:51:57",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
-            "psr-0": {
-                "Stash": "src/"
+            "psr-4": {
+                "Stash\\": "src/Stash/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -39,12 +44,14 @@
                 "email": "charlequin@gmail.com"
             }
         ],
-        "description": "A place to keep your cache",
-        "homepage": "http://github.com/tedivm/Stash",
+        "description": "The place to keep your cache.",
+        "homepage": "http://github.com/tedious/Stash",
         "keywords": [
+            "apc",
+            "cache",
             "caching",
-            "performance",
-            "scalability",
+            "memcached",
+            "redis",
             "sessions"
         ]
     }
