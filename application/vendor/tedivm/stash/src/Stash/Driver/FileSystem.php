@@ -242,7 +242,7 @@ class FileSystem implements DriverInterface
         }
 
         $storeString = $this->getEncoder()->serialize($this->makeKeyString($key), $data, $expiration);
-        $result = file_put_contents($path, $storeString, LOCK_EX);
+        $result = file_put_contents($path, $storeString, LOCK_SH);
 
         // If opcache is switched on, it will try to cache the PHP data file
         // The new php opcode caching system only revalidates against the source files once every few seconds,
