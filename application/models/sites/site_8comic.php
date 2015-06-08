@@ -5,8 +5,8 @@ class Site_8comic extends CI_Model {
 	private $html;
 	private $CI;
 	private $url = array(
-		'index' => 'http://www.8comic.com/comic/all.html',
-		'title' => 'http://www.8comic.com/html/'
+		'index' => 'http://www.comicvip.com/comic/all.html',
+		'title' => 'http://www.comicvip.com/html/'
 	);
 	
 	function __construct () {
