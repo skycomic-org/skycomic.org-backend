@@ -1,7 +1,8 @@
 <ul class="nav">
 	<li data-link="#/browse"><a href="#/donation">贊助</a></li>
+	<li data-link="#/app"><a href="#/app">Android APP</a></li>
 	<li><a target="_blank" href="https://github.com/skycomic-org/skycomic.org/issues">錯誤回報</a></li>
-	<li data-link="#/app"><a href="#/app">SkyComic APP</a></li>
+	<li><a target="_blank" href="https://github.com/skycomic-org/skycomic.org">Github</a></li>
 </ul>
 <ul class="nav pull-right">
 	<li class="dropdown">
