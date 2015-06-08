@@ -1,6 +1,6 @@
 <ul class="nav">
 	<li data-link="#/browse"><a href="#/donation">贊助</a></li>
-	<li data-link="#/guestbook"><a href="#/guestbook">錯誤回報</a></li>
+	<li><a target="_blank" href="https://github.com/skycomic-org/skycomic.org/issues">錯誤回報</a></li>
 	<li data-link="#/app"><a href="#/app">SkyComic APP</a></li>
 </ul>
 <ul class="nav pull-right">
