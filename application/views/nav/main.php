@@ -1,6 +1,7 @@
 <ul class="nav">
 	<li data-link="#/browse"><a href="#/donation">贊助</a></li>
 	<li data-link="#/guestbook"><a href="#/guestbook">錯誤回報</a></li>
+	<li data-link="#/app"><a href="#/app">SkyComic APP</a></li>
 </ul>
 <ul class="nav pull-right">
 	<li class="dropdown">

@@ -15,8 +15,9 @@ class Auth extends CI_Controller {
 		$this->auth_model->logout();
 		redirect('auth/login');
 	}
-	
-	public function login_redirect () {
+
+	private function login_redirect () {
+		$this->_mobile_login();
 		if ( ($referer = $this->session->userdata('referer') ) ) {
 			$this->session->unset_userdata('referer');
 			redirect($referer);
@@ -29,8 +30,9 @@ class Auth extends CI_Controller {
 		echo $this->auth_model->logined() ? "1" : "0";
 	}
 	
-	public function login () {
-		if ( $this->auth_model->logined() ) {
+	public function login ($mobileDeviceId = false) {
+		$this->setMobileSession($mobileDeviceId);
+		if ( !$this->_is_mobile_login() && $this->auth_model->logined() ) {
 			redirect('main');
 		}
 		if ( count($_POST) === 0 ) {
@@ -43,8 +45,12 @@ class Auth extends CI_Controller {
 					'js' => 'login'
 				 ));
 		} else {
-			if ( True !== ( $msg = $this->auth_model->login($this->input->post('id'), $this->input->post('pw')) ) ) {
-				$this->session->set_flashdata('error', $msg);
+			$id = $this->input->post('id');
+			$pw = $this->input->post('pw');
+
+			$errorMsg = $this->auth_model->login($id, $pw);
+			if ( True !== $errorMsg ) {
+				$this->session->set_flashdata('error', $errorMsg);
 				redirect('auth/login');
 			} else {
 				$this->login_redirect();
@@ -187,6 +193,7 @@ class Auth extends CI_Controller {
 			if ( $this->form_validation->run() === True && $this->auth_model->oauth_register()) {
 				$this->session->unset_userdata('oauth_data');
 				$this->session->set_flashdata('success', '恭喜您完成註冊!');
+				$this->_mobile_login();
 				redirect('main');
 			} else {
 				$this->sandvich
@@ -198,6 +205,29 @@ class Auth extends CI_Controller {
 				 ->partial('content', 'partial/auth/not_allow_register')
 				 ->render('layout/login');
 		}
+	}
+
+	public function mobile_success () {
+		$this->session->sess_destroy();
+		echo 'login successfully.';
+	}
+
+	private function setMobileSession ($mobileDeviceId) {
+		if (False !== $mobileDeviceId)
+			$this->session->set_userdata('mobileDeviceId', $mobileDeviceId);
+	}
+	
+	private function _mobile_login () {
+		if ($mobileDeviceId = $this->session->userdata('mobileDeviceId')) {
+			$this->session->unset_userdata('mobileDeviceId');
+			$user_id = $this->session->userdata('user_id');
+			$access_token = $this->auth_model->mobile_login($user_id, $mobileDeviceId);
+			redirect('auth/mobile_success#access_token=' . $access_token);
+		}
+	}
+
+	private function _is_mobile_login () {
+		return $this->session->userdata('mobileDeviceId');
 	}
 }
 

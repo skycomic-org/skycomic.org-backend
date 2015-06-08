@@ -10,6 +10,8 @@
 
 #facebook-crawler .message { width: 234px;overflow: hidden;display: block;}
 
+#topmenu a { background: none; }
+
 #real-comments {
 	background-color: white;
 	border-radius:5px;

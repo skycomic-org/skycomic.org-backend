@@ -9,13 +9,14 @@ class Favorite_model extends CI_Model {
 
 	function __construct () {
 		parent::__construct();
-		$this->CI = & get_instance();
-		$this->user_id = $this->session->userdata('user_id');
+		$this->CI = get_instance();
+		$this->CI->load->model('auth_model');
+		$this->user_id = $this->auth_model->getUserId();
 	}
 	
 	public function read ($uid = False) {
 		if ($uid === False ) {
-			$uid = $this->session->userdata('user_id');
+			$uid = $this->user_id;
 		}
 		
 		$this->CI->load->model('user_model', 'user');
@@ -29,7 +30,7 @@ class Favorite_model extends CI_Model {
 							->get()->result_array();
 		foreach ($array as $i=>$row) {
 			$sql='SELECT cid, name AS chapter, pages, update_time, `index` FROM index_chapter '
-				.'WHERE tid = '.$row['tid'].' AND ( name like "第%" OR name like "%話" OR name like "%捲" )'
+				.'WHERE tid = '.$row['tid'].' AND ( name like "第%" OR name like "%話" OR name like "%集" OR name like "%卷" OR name like "%捲" )'
 				.'ORDER BY `index` DESC LIMIT 5';
 			$comics = $this->db->query($sql)->result_array();
 			$t_sn_viewed = $this->CI->user->read_view_by_tid($row['tid']);
@@ -38,7 +39,8 @@ class Favorite_model extends CI_Model {
 				$row1['dateStr'] = timefix($date);
 				$row1['date'] = substr($date, 0, 10);
 				// 沒看過 & 一周內
-				$row1['new'] = !in_array($row1['index'], $t_sn_viewed) & ( (time() - strtotime($row1['update_time'])) < 7*24*60*60 );
+				$row1['new'] = ! in_array($row1['index'], $t_sn_viewed) 
+					& ( (time() - strtotime($row1['update_time'])) < 7*24*60*60 );
 			}
 			$array[$i]['comics']=$comics;
 		}

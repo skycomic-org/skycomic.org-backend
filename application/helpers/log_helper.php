@@ -16,6 +16,8 @@ function elog ($msg, $level = 'error') {
 	flock($fp, LOCK_UN);
 
 	fclose($fp);
+	if (ENVIRONMENT == 'development')
+		echo "[$level] $msg\n";
 }
 
 function elog_rotate () {

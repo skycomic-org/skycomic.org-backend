@@ -5,16 +5,15 @@ class User_model extends CI_Model {
 	
 	function __construct () {
 		parent::__construct();
-		$this->id = $this->session->userdata('user_id');
 	}
 	
 	public function read_view_by_tid ($tid, $newest=False) {
-		if ( !is_num($tid) || !$this->id ) {
+		if ( !is_num($tid) ) {
 			return array();
 		}
 		$sql='SELECT `index` AS c_order FROM `user_lastview` AS t1'
 			.' LEFT JOIN index_chapter AS t2 USING(`cid`)'
-			.' WHERE t1.`tid` = '.$tid.' AND t1.u_sn = '.$this->id
+			.' WHERE t1.`tid` = '.$tid.' AND t1.u_sn = '.$this->auth_model->getUserId()
 			.' ORDER BY `index` DESC';
 		if ($newest) {
 			$sql.=' LIMIT 0,1';

@@ -1,6 +1,7 @@
 define([
+  'layout',
   'text!templates/guestbook.html'
-  ], function (Template) {
+  ], function (Layout, Template) {
 
 	var View = function () {
 		var AppView = Backbone.View.extend({
@@ -9,6 +10,7 @@ define([
 			
 			render: function(tid) {
 				$(this.el).html(this.Template());
+				Layout.two('fb');
 			}
 		});
 		return new AppView();

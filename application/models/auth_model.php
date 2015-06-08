@@ -5,16 +5,21 @@ class Auth_model extends CI_Model {
 	private $table = 'user';
 	private $CI;
 	private $cookie_name = 'SkyComic_auth';
+	const MOBILE_EXPIRE_DAY = 60;
 
 	function __construct () {
 		parent::__construct();
-		$this->user_id = $this->session->userdata('user_id');
+		$this->user_id = $this->getUserId();
 		$this->CI = & get_instance();
 		$this->CI->load->model('user_model', 'user');
 	}
+
+	public function invalidIP () {
+		return $this->db->select('count(*) AS count')->from('abuse')->where('ip', $_SERVER['REMOTE_ADDR'])->get()->row()->count != 0;
+	}
 	
 	public function logined () {
-		if ( $this->user_id !== False ) {
+		if ( $this->getUserId() !== False ) {
 			return True;
 		} else if ( $this->input->cookie($this->cookie_name) ) {
 			$data = json_decode($this->input->cookie($this->cookie_name));
@@ -34,6 +39,38 @@ class Auth_model extends CI_Model {
 		$this->session->sess_destroy();
 		$this->load->helper('cookie');
 		delete_cookie($this->cookie_name);
+	}
+
+	public function getUserId () {
+		$userId = $this->session->userdata('user_id');
+		if ($access_token = $this->input->get('access_token')) {
+			$device_id = $this->input->get('device_id');
+			$result = $this->db->select('user_id,expire_time')
+				->from('user_android')
+				->where('access_token', $access_token)
+				->where('device_id', $device_id)
+				->get();
+			if ($result->num_rows() > 0) {
+				$row = $result->row();
+				if ($row->expire_time >= time())
+					$userId = $result->row()->user_id;
+			}
+		}
+		return $userId;
+	}
+
+	public function mobile_login ($user_id, $mobileDeviceId) {
+		if (!empty($user_id) && !empty($mobileDeviceId)) {
+			$access_token = md5( uniqid() );
+			$this->db->replace("user_android", array(
+					"user_id" => $user_id,
+					"device_id" => $mobileDeviceId,
+					"access_token" => $access_token,
+					"expire_time" => time() + self::MOBILE_EXPIRE_DAY * 24 * 60 * 60
+				));
+			return $access_token;
+		}
+		return False;
 	}
 	
 	// check if id and pass okay
@@ -63,8 +100,10 @@ class Auth_model extends CI_Model {
 			'lastip' => $_SERVER['REMOTE_ADDR'],
 			'lastlogin' => date('Y-m-d H:i:s')
 		);
-		$this->db->where('sn', $data->sn)
-				 ->update('user', $update);
+		if ($data->sn != '2') {
+			$this->db->where('sn', $data->sn)
+				->update('user', $update);
+		}
 	
 		// setting session
 		$session = array(
@@ -84,7 +123,10 @@ class Auth_model extends CI_Model {
 					'isNCTU' => '1'
 				));
 		}
-		
+
+		if ($data->sn == 2) {
+			return ;
+		}
 		// regenerate auth
 		$data->auth = md5( uniqid() );
 		$this->db->where('sn', $data->sn)

@@ -67,6 +67,11 @@ class Grab_model extends CI_Model {
 		return $id;
 	}
 
+	public function curlUseProxy ($curl) {
+		return $curl->header('cache-control', 'no-cache')
+			->proxy( $this->read_proxys('index') );
+	}
+
 	public function render_image ($params) {
 		$params['referer'] = isset($params['referer']) ? $params['referer'] : False;
 		$params['thumbnail'] = isset($params['thumbnail']) ? $params['thumbnail'] : False;
@@ -128,8 +133,8 @@ class Grab_model extends CI_Model {
 		return $result;
 	}
 	
-	public function read_proxys () {
-		$sql='SELECT * FROM proxys WHERE available = 1';
+	public function read_proxys ($usage='image') {
+		$sql='SELECT * FROM proxys WHERE available = 1 AND `usage` = "'. $usage .'"';
 		$result = $this->db->query($sql)->result_array();
 		$proxys = array();
 		foreach ( $result as $row ) {

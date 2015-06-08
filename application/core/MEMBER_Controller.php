@@ -6,17 +6,17 @@
  *
  * @author Chieh Yu (welkineins@gmail.com)
  */
-class MEMBER_Controller extends MX_Controller
+class MEMBER_Controller extends CI_Controller
 {
 	/**
 	 * Constructor
 	 */
 	public function __construct () {
 		parent::__construct();
+		if ( $this->auth_model->invalidIP() ) {
+			die('abuse, permission denied.');
+		}
 		if ( $this->auth_model->logined() !== True ) {
-			// $this->session->set_userdata('referer', $_SERVER["REQUEST_URI"]);
-			// redirect('auth/login');
-			// exit;
 			$this->auth_model->login('guest', 'guestguest');
 		}
 	}

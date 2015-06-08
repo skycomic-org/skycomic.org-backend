@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Images extends CI_Controller {
+class Images extends MEMBER_Controller {
 
 	function __construct () {
 		parent::__construct();
@@ -39,7 +39,6 @@ class Images extends CI_Controller {
 			$this->output->json(200);
 		}
 	}
-	
 }
 
 /* End of file main.php */

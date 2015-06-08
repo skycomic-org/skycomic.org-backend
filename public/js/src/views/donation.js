@@ -1,6 +1,7 @@
 define([
+  'layout',
   'text!templates/donation.html'
-  ], function (Template) {
+  ], function (Layout, Template) {
 
 	var View = function () {
 		var AppView = Backbone.View.extend({
@@ -17,6 +18,7 @@ define([
 				} else {
 					$(this.el).html(this.Template());	
 				}
+				Layout.two('fb');
 			}
 		});
 		return new AppView();

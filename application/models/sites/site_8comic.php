@@ -36,8 +36,8 @@ class Site_8comic extends CI_Model {
 
 	public function check () {
 		$result = (object)[];
-		$all_page = $this->CI->curl->url($this->url['index'])->add()->get();
-		$thumbnail = $this->CI->curl->url('http://www.8comic.com/pics/0/7340s.jpg')->add()->get();
+		$all_page = $this->grab->curlUseProxy($this->CI->curl)->url($this->url['index'])->add()->get();
+		$thumbnail = $this->grab->curlUseProxy($this->CI->curl)->url('http://www.8comic.com/pics/0/7340s.jpg')->add()->get();
 		$result->site_ok = strlen($all_page) >= 887087;
 		$result->img_ok = strlen($thumbnail) >= 7751;
 		return $result;
@@ -62,8 +62,7 @@ class Site_8comic extends CI_Model {
 			if ($getLink) {
 				return $url;
 			}
-			redirect($url);
-			/*
+			
 			if ( !$this->CI->grab->render_image([
 				'url' => $url,
 				'referer' => $this->url['title']
@@ -72,7 +71,7 @@ class Site_8comic extends CI_Model {
 				elog('site_8comic - image error, cid=' . $cid);
 				show_404();
 			}
-			*/
+			
 		} else {
 			header('HTTP/404 File Not Found');
 			exit;
@@ -96,11 +95,13 @@ class Site_8comic extends CI_Model {
 				return $url;
 			}
 			redirect($url);
+			/*
 			$this->CI->grab->render_image([
 				'url' => $url,
 				'thumbnail' => True,
 				'referer' => $this->url['title']
 			]);
+			*/
 		} else {
 			header('HTTP/404 Not Found');
 			exit;
@@ -108,9 +109,9 @@ class Site_8comic extends CI_Model {
 	}
 	
 	private function update_title () {
-		$html = $this->CI->curl->url($this->url['index'])
-							   ->proxy(False)
-							   ->add()->get();
+		$html = $this->grab->curlUseProxy($this->CI->curl)
+			->url($this->url['index'])
+			->add()->get();
 	    $result = array();
 		if ( !preg_match_all( '/<a href="\/html\/(\d+)\.html"[^>]+>([^<]+)<\/a>/', $html, $result, PREG_SET_ORDER ) ) {
 			throw new Exception('Index grabed failed.');
@@ -130,7 +131,7 @@ class Site_8comic extends CI_Model {
 			}
 		}
 	}
-	
+
 	private function update_chapter () {
 		$this->CI->load->model('comic_model', 'comic');
 		$titles = $this->CI->grab->read_title_by_sid($this->sid);
@@ -140,7 +141,7 @@ class Site_8comic extends CI_Model {
 		}
 		
 		try {
-			$htmls = $this->CI->curl->getData_multi_tmp($urls);
+			$htmls = $this->grab->curlUseProxy($this->CI->curl)->getData_multi_tmp($urls);
 		} catch (Exception $e) {
 			throw $e;
 		}
@@ -170,7 +171,7 @@ class Site_8comic extends CI_Model {
 			
 			$url = $this->getUrlByCatId($title['meta']['catid']) . $row['index'] .'.html';
 			
-			$this->html = $this->CI->curl->url($url)->proxy(False)->add()->get();
+			$this->html = $this->grab->curlUseProxy($this->CI->curl)->url($url)->add()->get();
 
 			if (!$this->html) {
 				throw new Exception('Cannot access Comic Page.');
@@ -184,7 +185,7 @@ class Site_8comic extends CI_Model {
 			}
 			
 			$each_vol = $this->code_opt($codes);
-			
+
 			$comics = $this->CI->comic->read_chapters_by_tid($row['id']);
 			$i = 1;
 			$grabbed_chapter_names = array();
@@ -249,14 +250,29 @@ class Site_8comic extends CI_Model {
 	}
 	
 	private function code_opt ($code) {
-		$each_vol = explode("|",$code);
-		$result = array();
-		foreach ( $each_vol as $vol ) {
-			$meta = array();
-			list($meta['num'], $meta['sid'], $meta['did'], $meta['pages'], $meta['code']) = explode(" ", $vol);
-			$result[ $meta['num'] ] = $meta;
+		$hol = substr($code, 0, 3);
+		$regexp = "/(\w{3}\d|\w{2}\d{2}|\w\d{3})(\w\d|\d{2})(\d)(\w{2}\d|\w\d{2}|\d{3})(.{40})/";
+		if (! preg_match_all($regexp, $code, $results, PREG_SET_ORDER)) {
+			echo $code;
+			echo $regexp;
+			throw new Exception("code invalid, maybe 8comic changed it?");
+		} else {
+			$return = array();
+			foreach ($results as $result) {
+				$meta = array();
+				list(, $num, $sid, $meta['did'], $pages, $meta['code']) = $result;
+				$meta['num'] = $this->removePlaceHolder($num);
+				$meta['sid'] = $this->removePlaceHolder($sid);
+				$meta['pages'] = $this->removePlaceHolder($pages);
+				$return[ $meta['num'] ] = $meta;
+			}
+			return $return;
 		}
-		return $result;
+	}
+
+	private function removePlaceHolder($item) {
+		preg_match('/(\d+)/', $item, $result);
+		return $result[1];
 	}
 	
 	// we need to check chapter and 8comic's index are all match
@@ -293,7 +309,7 @@ class Site_8comic extends CI_Model {
 	}
 	
 	private function parseStopRenew () {
-		preg_match('/<a href="#Comic">(.+)<\/a>/U', $this->html, $title);
+		preg_match('/<a href="#Comic">(.+)<\/td>/U', $this->html, $title);
 		if (!isset($title[1]))
 			throw new Exception(' parseStopRenew : Cannot get title.');
 		
@@ -310,7 +326,7 @@ class Site_8comic extends CI_Model {
 	}
 	
 	private	function parseCode () {
-		preg_match('/var allcodes="([^"]+)"/', $this->html, $code);
+		preg_match('/var cs=\'([^\']+)\'/', $this->html, $code);
 		if (!isset($code[1]))
 			throw new Exception('Cannot get code.');
 		return $code[1];

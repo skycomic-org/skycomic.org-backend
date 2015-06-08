@@ -1,5 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-define('JS_VERSION', '2.0.2');
+define('JS_VERSION', '2.0.4');
 /*
 | -------------------------------------------------------------------
 | AUTO-LOADER
