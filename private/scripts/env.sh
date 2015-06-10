@@ -1,3 +1,3 @@
 #!/bin/sh
-PHP="/usr/bin/env php"
+PHP="/usr/local/bin/php"
 FOLDER=$(dirname $0)/../..

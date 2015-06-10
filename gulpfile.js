@@ -48,7 +48,7 @@ gulp.task('buildjs', ['clean'], function () {
 
 gulp.task('mvlib', ['clean'], function () {
 	return gulp.src(path.src + 'js-libs/**/*')
-		.pipe(gulp.dest(path.dst + 'js/lib'));
+		.pipe(gulp.dest(path.dst + 'js/libs'));
 });
 
 gulp.task('mvimg', ['clean'], function () {
