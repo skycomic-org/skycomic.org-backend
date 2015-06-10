@@ -5,7 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="<?php echo base_url(); ?>css/main-<?= JS_VERSION ?>.css">
+	<link rel="stylesheet" href="<?= base_url('css/style.css?v=' . JS_VERSION); ?>">
 	<?php $this->load->view('google'); ?>
 	<?php $this->load->view('partial/meta') ?>
 </head>
@@ -95,21 +95,19 @@
 		</div><!-- /bottombar -->
 	</div>
 </footer>
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.2.2/underscore-min.js"></script>
-<script type="text/javascript" src="<?= CDN_LINK ?>js/libs/backbone/backbone-optamd3-min.js"></script>
-
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.3/jquery.scrollTo.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js"></script>
-
 <script type="text/javascript">
 	window.BASE_URL = "<?= base_url() ?>";
 	window.CDN_LINK = "<?= CDN_LINK ?>";
 	window.THUMBNAIL = CDN_LINK + 'images/thumbnail/';
 	window.JS_VERSION = "<?= JS_VERSION ?>";
 	window.USERNAME = "<?= $this->session->userdata('id') ?>";
-</script>    
-<script data-main="<?= base_url() ?>js/<?= JS_VERSION ?>/main" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.5/require.min.js"></script>
+</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.2.2/underscore-min.js"></script>
+<script src="<?= CDN_LINK ?>js/libs/backbone/backbone-optamd3-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.3/jquery.scrollTo.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.5/require.min.js"></script>
+<script src="<?= base_url('js/script.js?v=' . JS_VERSION) ?>"></script>
 </body>
 </html>

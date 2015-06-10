@@ -1,5 +1,7 @@
 <?php
 
+define('JS_VERSION', '2.0.4');
+
 if (defined('ENVIRONMENT'))
 {
 	switch (ENVIRONMENT)

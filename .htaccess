@@ -2,9 +2,9 @@ RewriteEngine on
 
 # folders
 
-RewriteCond $1 ^(files|image|js|css|img)\/ [OR]
+RewriteCond $1 ^(files|image|js|css)\/ [OR]
 RewriteCond $1 ^(robots\.txt|favicon\.ico)$
-RewriteRule ^(.*)$ /public/$1 [L]
+RewriteRule ^(.*)$ /frontend/$1 [L]
 
-RewriteCond $1 !^(index\.php|public\/|robots\.txt)
+RewriteCond $1 !^(index\.php|frontend\/|robots\.txt)
 RewriteRule ^(.*)$ /index.php/$1 [L]

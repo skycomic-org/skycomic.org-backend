@@ -1,5 +1,6 @@
 ## System Requirement
 + apache 2.2
++ node.js & npm
 + php 5.4 up
 + php extensions:
 	+ GD
@@ -29,6 +30,11 @@
     + run private/script/init.sh to fetch the comic index and chapters
 + cronjobs
 	+ add cronjobs corresponded to private/script/cron-\*
++ build frontend
+```
+npm install
+npm run gulp
+```
 
 ## Setup via Docker (for development only, just few steps)
 See [dockerfile-skycomic](https://github.com/skycomic-org/dockerfile-skycomic)

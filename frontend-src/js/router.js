@@ -1,4 +1,18 @@
-define([], function () {
+define([
+'views/sidebar/fb',
+'views/app',
+'views/author',
+'views/browse',
+'views/comics',
+'views/discover',
+'views/donation',
+'views/favorite',
+'views/history',
+'views/login',
+'views/search',
+'views/title',
+'views/vtitle'
+], function () {
 	var AppRouter = Backbone.Router.extend({
 		lastview: false,
 
