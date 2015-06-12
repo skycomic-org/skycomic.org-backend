@@ -1,4 +1,4 @@
-(function () {
+define(['jquery'], function () {
 	var el = $('#global-err'),
 		span = el.find('span');
 
@@ -38,7 +38,7 @@
 	$(".alert-message") && $(".alert-message").alert();
 	
 	// special utility(好怪)
-	$("a[data-false='true']").live('click', function () {
+	$(document).on('click', "a[data-false='true']", function () {
 		return false;
 	});
-}) ();
+});

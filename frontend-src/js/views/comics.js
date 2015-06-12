@@ -36,8 +36,8 @@ define([
 					query = self.query;
 				API.read('category/'+ self.query.type, function (data) {
 					self.categories = data;
-					if ( !window.pagebar || window.pagebar.el != self.el ) {
-						window.pagebar = Pagebar(self.el);
+					if ( !window.pagebar || window.pagebar.el != self.$el ) {
+						window.pagebar = Pagebar(self.$el);
 					}
 					window.pagebar.init(function (page) {
 						self.query.page = page;
@@ -46,7 +46,7 @@ define([
 					self.render_data();
 				});
 				Layout.two('fb');
-				ajaxLoader(self.el);
+				ajaxLoader(self.$el);
 				window.changeTitle('所有漫畫瀏覽');
 			},
 			
@@ -58,7 +58,7 @@ define([
 					d.query = self.query;
 					d.thumbnail = self.thumbnail;
 					d.categories = self.categories;
-					self.el.html(self.T_ComicList(d));
+					self.$el.html(self.T_ComicList(d));
 					window.pagebar.setopt({
 						nowpage: query.page,
 						maxpage: d.pages

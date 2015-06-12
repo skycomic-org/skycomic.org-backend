@@ -13,11 +13,11 @@ define([
 
 			render: function() {
 				var self = this;
-				ajaxLoader(self.el);
+				ajaxLoader(self.$el);
 
 				Favorite.read(function (data) {
 					try{
-						self.el.html(self.template({ 
+						self.$el.html(self.template({ 
 							favorites: data
 						}));
 					} catch (e) {

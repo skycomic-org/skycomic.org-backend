@@ -9,7 +9,31 @@ var path = {};
 path.src = "frontend-src/";
 path.dst = "frontend/";
 path.js = path.src + 'js/';
-path.jslib = path.src + 'js-libs/';
+path.jslib = path.src + 'libs/';
+
+var amdParams = {
+	paths: {
+		jquery: 'empty:',
+		underscore: 'empty:',
+		backbone: 'empty:',
+		bootstrap: 'empty:',
+		jquery_scroll: 'empty:',
+		touchswipe: 'empty:',
+
+		text: path.jslib + 'require/text',
+		ajaxqueue: path.js + 'tools/ajaxqueue',
+		image: path.js + 'tools/image',
+		string: path.js + 'tools/string',
+		form_mem: path.js + 'tools/form_memorizer',
+		comic_queue: path.js + 'tools/comic_queue',
+		api: path.js + 'tools/api',
+		tabs: path.js + 'tools/tabs',
+		layout: path.js + 'tools/layout',
+		searchbar: path.js + 'views/widget/searchbar',
+		pagebar: path.js + 'views/widget/pagebar',
+		comment: path.js + 'views/widget/comment'
+	}
+};
 
 gulp.task('clean', function (cb) {
 	del([path.dst + '/**/*'], cb);
@@ -22,32 +46,25 @@ gulp.task('cssmin', ['clean'], function () {
 		.pipe(gulp.dest(path.dst + 'css'));
 });
 
-gulp.task('buildjs', ['clean'], function () {
+gulp.task('main', ['clean'], function () {
 	return gulp.src([path.js + '**/*.js', path.src + 'js/**/*.html', path.jslib + '**/*.js'])
-		.pipe(amdOptimize('main', {
-			paths: {
-				text: path.jslib + 'require/text',
-				touchswipe: path.jslib + 'jquery/jquery-touchswipe.min',
-				ajaxqueue: path.jslib + 'ajaxqueue',
-				image: path.jslib + 'image',
-				string: path.jslib + 'string',
-				form_mem: path.js + 'tools/form_memorizer',
-				comic_queue: path.js + 'tools/comic_queue',
-				api: path.js + 'tools/api',
-				tabs: path.js + 'tools/tabs',
-				layout: path.js + 'tools/layout',
-				searchbar: path.js + 'views/widget/searchbar',
-				pagebar: path.js + 'views/widget/pagebar',
-				comment: path.js + 'views/widget/comment'
-			}
-		}))
+		.pipe(amdOptimize('main', amdParams))
 		.pipe(uglify())
-		.pipe(concat('script.js'))
+		.pipe(concat('main.js'))
+		.pipe(gulp.dest(path.dst + 'js'));
+});
+
+gulp.task('login', ['clean'], function () {
+	return gulp.src([path.js + '**/*.js', path.src + 'js/**/*.html', path.jslib + '**/*.js'])
+		.pipe(amdOptimize('login', amdParams))
+		.pipe(uglify())
+		.pipe(concat('login.js'))
 		.pipe(gulp.dest(path.dst + 'js'));
 });
 
 gulp.task('mvlib', ['clean'], function () {
-	return gulp.src(path.src + 'js-libs/**/*')
+	return gulp.src(path.jslib + '*.js')
+		.pipe(uglify({mangle: false, preserveComments: 'all'}))
 		.pipe(gulp.dest(path.dst + 'js/libs'));
 });
 
@@ -66,4 +83,8 @@ gulp.task('mvassets', ['clean', 'mvlib', 'mvimg', 'mvfile'], function () {
 		.pipe(gulp.dest(path.dst));
 });
 
-gulp.task('default', ['cssmin', 'buildjs', 'mvassets']);
+gulp.task('watch', function () {
+	gulp.watch(path.js + '**/*.js', ['default']);
+});
+
+gulp.task('default', ['cssmin', 'main', 'login', 'mvassets']);

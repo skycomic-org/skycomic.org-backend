@@ -12,11 +12,11 @@ define([
 
 			render: function() {
 				var self = this;
-				ajaxLoader(self.el);
+				ajaxLoader(self.$el);
 
 				API.read('view_record', function (data) {
 					try{
-						self.el.html(self.template({ 
+						self.$el.html(self.template({ 
 							records: data
 						}));
 					} catch (e) {

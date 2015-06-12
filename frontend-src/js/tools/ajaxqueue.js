@@ -1,4 +1,4 @@
-(function($){
+define(['jquery'], function () {
 		// jQuery on an empty object, we are going to use this as our Queue
 		var ajaxQueue = $({});
 
@@ -21,4 +21,4 @@
 						$.ajax(ajaxOpts);
 				});
 		};
-})(jQuery);
+});

@@ -62,13 +62,13 @@ define([], function() {
 			
 			els.lt.click(function () { Move.left(); });
 			els.gt.click(function () { Move.right(); });
-			$('#comic-queue-ul > li > a > img').live('click', function () {
+			$(document).on('click', '#comic-queue-ul > li > a > img', function () {
 				var cid = $(this).parent().attr('data-cid');
 				delete queue[cid];
 				data_change();
 				return false;
 			});
-			$('.browse-queue').live('click', function () {
+			$(document).on('click', '.browse-queue', function () {
 				var cid = $(this).attr('data-cid');
 				$.ajax({
 					url: '/api/chapter/'+cid,

@@ -13,23 +13,18 @@ define([
 			discoverT: _.template(discoverT),
 
 			render: function() {
-				var self = this;
-				ajaxLoader(self.el);
+				ajaxLoader(this.$el);
 
 				API.read('new', function (data) {
-					try{
-						data.thumbnail = self.thumbnail;
-						self.el.html(self.discoverT(data));	
-					} catch (e) {
-						// console.log(e);
-					}
-				});
+					data.thumbnail = this.thumbnail;
+					this.$el.html(this.discoverT(data));
+				}.bind(this));
 				Layout.two('fb');
 				window.changeTitle('探索');
 			}
 		});
 		return new AppView();
 	};
-	
+
 	return View;
 });

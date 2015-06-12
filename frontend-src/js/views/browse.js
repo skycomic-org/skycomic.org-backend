@@ -155,7 +155,7 @@ define([
 				// one column layout
 				Layout.one();	
 				// render browse html
-				self.el.html(self.BrowseT());
+				this.$el.html(self.BrowseT());
 				els.img = $('#image');
 
 				// custimize some view
@@ -185,7 +185,7 @@ define([
 					}
 				});
 				// binding event for ipad
-				self.el.swipe({
+				this.$el.swipe({
 					swipeLeft:function (event, direction, distance, duration, fingerCount) {
 						if (app_router.nowpage == 'browse') {
 							self.change_page(page+1);
@@ -264,16 +264,15 @@ define([
 			},
 			
 			render_img: function () {
-				els.img.hide()
+				var el = els.img;
+				el.hide()
 					.one('load', function() {
-						$(this).show();
-			        })
+						el.show();
+					})
 					.attr('src', uri + cid +'/' + page)
-					.each(function() {
-						//Cache fix for browsers that don't trigger .load()
-						if(this.complete) 
-							$(this).trigger('load');
-					});
+				if (el.get(0).complete) {
+					el.trigger('load');
+				};
 			},
 			
 			prev_page: function (p) {

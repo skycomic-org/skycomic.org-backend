@@ -13,59 +13,62 @@ define([
 'views/title',
 'views/vtitle'
 ], function () {
-	var AppRouter = Backbone.Router.extend({
-		lastview: false,
 
-		el: $('body .nav'),
-	
-        routes: {
-            ":route/:action/*param": "loadView",
-            ":route/:action": "loadView",
-            ":route": "loadView"
-        },
+var AppRouter = Backbone.Router.extend({
+	lastview: false,
 
-        loadView: function ( route, action, param ) {
-			var self = this;
-			errHide();
+	el: $('body .nav'),
 
-			if (!route) {
-				this.navigate(USERNAME == 'guest' ? '/discover' : '/favorite', {trigger: true});
-				return;
-			}
-			// 選單處理
-			var li = self.el.find('li[data-link="'+ location.hash +'"]');
-			if ( li ) {
-				li.addClass('active');
-				self.el.find('li[data-link!="'+ location.hash +'"]').removeClass('active');
-			}
+	routes: {
+		"": "loadView",
+		":route/:action/*param": "loadView",
+		":route/:action": "loadView",
+		":route": "loadView"
+	},
 
-			// lastview leave function
-			if (self.lastview && typeof window[self.lastview].leave !== 'undefined') {
-				window[self.lastview].leave(route);
-			}
-			
-			var req = 'views/'+ route,
-				windowobj = '__' + route;
+	views: {},
 
-			// global page info for views
-			self.nowpage = route;
-			self.lastpage = self.lastview ? self.lastview.substr(2) : '';
+	loadView: function ( page, action, param ) {
+		errHide();
 
-			// setting page
-			window.comic_queue.page(route);
-			
-			// 讀取相對應的view檔
-			require([req], function (View) {
-				if (!window[windowobj]) {
-					window[windowobj] = View();
-				}
-				window[windowobj].render(action, param);
-				// trigger google analytics
-				_gaq.push(['_trackPageview']);
-				self.lastview = windowobj;
-			});
+		if (!page) {
+			this.navigate(USERNAME == 'guest' ? '/discover' : '/favorite', {trigger: true});
+			return;
 		}
-    });
+		// 選單處理
+		var li = this.el.find('li[data-link="'+ location.hash +'"]');
+		if ( li ) {
+			li.addClass('active');
+			this.el.find('li[data-link!="'+ location.hash +'"]').removeClass('active');
+		}
 
-	return AppRouter;
+		// lastview leave function
+		if (this.lastview && typeof this.views[this.lastview].leave !== 'undefined') {
+			this.views[this.lastview].leave(page);
+		}
+		
+		var req = 'views/'+ page;
+
+		// global page info for views
+		this.nowpage = page;
+		this.lastpage = this.lastview ? this.lastview.substr(2) : '';
+
+		// setting page
+		window.comic_queue.page(page);
+		
+		// 讀取相對應的view檔
+		require([req], function (View) {
+			if (!this.views[page]) {
+				this.views[page] = View();
+			}
+			this.views[page].render(action, param);
+			// trigger google analytics
+			_gaq.push(['_trackPageview']);
+			this.lastview = page;
+		}.bind(this));
+	}
+});
+
+return AppRouter;
+
 });

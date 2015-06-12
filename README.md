@@ -3,6 +3,8 @@
 + node.js & npm
 + php 5.4 up
 + php extensions:
+	+ curl
+	+ mysqli
 	+ GD
 	+ mcrypt
 + mariadb / mysql
@@ -33,6 +35,7 @@
 + build frontend
 ```
 npm install
+npm run bower install
 npm run gulp
 ```
 

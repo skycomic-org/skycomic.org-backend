@@ -102,12 +102,7 @@
 	window.JS_VERSION = "<?= JS_VERSION ?>";
 	window.USERNAME = "<?= $this->session->userdata('id') ?>";
 </script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.2.2/underscore-min.js"></script>
-<script src="<?= CDN_LINK ?>js/libs/backbone/backbone-optamd3-min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.3/jquery.scrollTo.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.5/require.min.js"></script>
-<script src="<?= base_url('js/script.js?v=' . JS_VERSION) ?>"></script>
+<script src="<?= base_url('js/libs/require-min.js') ?>"></script>
+<script src="<?= base_url('js/main.js?v=' . JS_VERSION) ?>"></script>
 </body>
 </html>

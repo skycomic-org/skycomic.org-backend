@@ -53,9 +53,9 @@ define([
 				}
 				d.maxpage != 1 && d.showpages.push(d.maxpage);
 				if ( d.maxpage <= 1 ) {
-					self.el.find('.pagination').html('');
+					self.$el.find('.pagination').html('');
 				} else {
-					self.el.find('.pagination').html(self.T_Pagebar(d));
+					self.$el.find('.pagination').html(self.T_Pagebar(d));
 				}
 				return this;
 			},

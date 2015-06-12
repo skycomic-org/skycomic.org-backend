@@ -1,7 +1,7 @@
 define([], function () {
-	var $tabs = [$('.nav-tabs > li'), $('.pills > li')];
-	_.each($tabs, function ($dom) {
-		$dom.find('a').live('mouseenter', function () {
+	var selectors = ['.nav-tabs > li a', '.pills > li a'];
+	_.each(selectors, function (selector) {
+		$('document').on('mouseenter', selector, function () {
 			var $this = $(this).parent(),
 				$active = $this.parent().find('.active');
 			$($active.attr('data-tab')).removeClass('active');

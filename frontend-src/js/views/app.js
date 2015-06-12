@@ -9,7 +9,7 @@ define([
             Template: _.template(Template),
             
             render: function(tid) {
-                $(this.el).html(this.Template());
+                this.$el.html(this.Template());
                 Layout.two('fb');
             }
         });

@@ -41,9 +41,7 @@ class Auth extends CI_Controller {
 					'form' => array(),
 					'default' => 'login'
 				 ))
-				 ->render('layout/login', array(
-					'js' => 'login'
-				 ));
+				 ->render('layout/login');
 		} else {
 			$id = $this->input->post('id');
 			$pw = $this->input->post('pw');

@@ -31,8 +31,8 @@ define([
 			initialize: function() {
 				var self = this;
 				require(['pagebar'], function (p) {
-					if ( !window.pagebar || window.pagebar.el != self.el ) {
-						window.pagebar = p(self.el);
+					if ( !window.pagebar || window.pagebar.el != self.$el ) {
+						window.pagebar = p(self.$el);
 					}
 					window.pagebar.init(function (page) {
 						self.page = page;
@@ -63,7 +63,7 @@ define([
 			
 			render_data: function () {
 				var self = this;
-				self.el.html(self.T_Comment({
+				self.$el.html(self.T_Comment({
 					comments: self.Comments,
 					T_LeaveComment: self.T_LeaveComment,
 					center: self.center

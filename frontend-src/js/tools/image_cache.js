@@ -1,3 +1,4 @@
+define(['jquery'], function () {
 window.imageCache = (function () {
 	var pub = {},
 		els = [
@@ -31,4 +32,5 @@ window.imageCache = (function () {
 	};
 
 	return pub;
-}) ();
+})();
+});

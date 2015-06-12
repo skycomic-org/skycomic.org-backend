@@ -18,7 +18,7 @@ define([
 				var self = this;
 				
 				API.read('search/'+ encodeURIComponent(text), function (data) {
-					self.el.html(self.Template({data: data}));
+					self.$el.html(self.Template({data: data}));
 					window.changeTitle('搜尋「'+ _text +'」的結果');
 				});
 				Layout.two('fb');

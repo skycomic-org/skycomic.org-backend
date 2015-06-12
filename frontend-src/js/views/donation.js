@@ -16,7 +16,7 @@ define([
 						$(".alert-message").alert();
 					}, 1000);
 				} else {
-					$(this.el).html(this.Template());	
+					this.$el.html(this.Template());	
 				}
 				Layout.two('fb');
 			}

@@ -12,10 +12,9 @@ define([
 			T_author: _.template(T_author),
 
 			render: function(author_id) {
-				var self = this;
 				API.read('author/'+ author_id, function (data) {
-					self.el.html(self.T_author(data));
-				});
+					this.$el.html(this.T_author(data));
+				}.bind(this));
 				Layout.two('fb');
 			}
 		});

@@ -48,7 +48,7 @@ define([
 			render_data: function (index, data) {
 				var self = this,
 					tid = data.tid;
-				self.el.find('#title-' + tid).html(self.T_title(data));
+				self.$el.find('#title-' + tid).html(self.T_title(data));
 				self.ul[tid] = $('#chapters-'+ tid +' > ul.title');
 				
 				var Comments = comments($('#comments-' + tid));
@@ -61,7 +61,7 @@ define([
 				var self = this;
 				self.vtid = vtid;				
 				self.Clear();
-				ajaxLoader(self.el);
+				ajaxLoader(self.$el);
 				API.read_sync('vtitle/'+ vtid, function (data) {
 					self.data = data;
 					Favorite.read(function () {
@@ -82,7 +82,7 @@ define([
 							self.render_data(i, self.data[i]);
 						});
 					});
-					self.el.html(self.T_vtitle({data: data, tid: self.tid}));
+					self.$el.html(self.T_vtitle({data: data, tid: self.tid}));
 					$('ul#title-tabs > li').each(function (i, el) {
 						var $el = $(el),
 							mytid = $el.attr('data-tid');
