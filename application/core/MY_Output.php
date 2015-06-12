@@ -11,7 +11,7 @@ class MY_Output extends CI_Output {
 
 	public function cacheable () {
 		header_remove('Set-Cookie');
-		$this->set_header('Cacheable: True');
+		$this->set_header('X-Cacheable: True');
 	}
 	
 	public function cleanup () {
