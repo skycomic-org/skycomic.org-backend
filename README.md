@@ -34,6 +34,7 @@
 	+ add cronjobs corresponded to private/script/cron-\*
 + build frontend
 ```
+cd frontend
 npm install
 npm run bower install
 npm run gulp

@@ -8,3 +8,6 @@
 [submodule "private/mediawiki-1.15.4"]
 	path = private/mediawiki-1.15.4
 	url = https://github.com/skycomic-org/mediawiki.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/skycomic-org/skycomic.org-frontend.git
