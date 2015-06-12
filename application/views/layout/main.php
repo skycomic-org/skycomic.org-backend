@@ -102,7 +102,7 @@
 	window.JS_VERSION = "<?= JS_VERSION ?>";
 	window.USERNAME = "<?= $this->session->userdata('id') ?>";
 </script>
-<script src="<?= base_url('js/libs/require-min.js') ?>"></script>
-<script src="<?= base_url('js/main.js?v=' . JS_VERSION) ?>"></script>
+<script src="<?= CDN_LINK . 'js/libs/require-min.js' ?>"></script>
+<script src="<?= CDN_LINK . 'js/main.js?v=' . JS_VERSION ?>"></script>
 </body>
 </html>

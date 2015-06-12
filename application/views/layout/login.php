@@ -56,8 +56,8 @@
 		window.BASE_URL = "<?= base_url() ?>";
 		window.JS_VERSION = "<?= JS_VERSION ?>";
 	</script>
-	<script src="<?= base_url('js/libs/require-min.js') ?>"></script>
-	<script src="<?= base_url('js/login.js?v=' . JS_VERSION) ?>"></script>
+	<script src="<?= CDN_LINK . 'js/libs/require-min.js' ?>"></script>
+	<script src="<?= CDN_LINK . 'js/login.js?v=' . JS_VERSION ?>"></script>
 	
 	<?php $this->load->view('killie'); ?>
 	<footer>
