@@ -22,9 +22,8 @@
           <a class="brand" href="<?php echo base_url(); ?>">SkyComic</a>
           <div class="nav-collapse"> 
             <ul class="nav"> 
-
-			<li data-link="#/error-report"><a href="#/error-report">問題回報</a></li>
-	
+		<li><a target="_blank" href="https://github.com/skycomic-org/skycomic.org/issues">錯誤回報</a></li>
+		<li><a target="_blank" href="https://github.com/skycomic-org/skycomic.org">Github</a></li>
             </ul> 
           </div><!--/.nav-collapse --> 
         </div> 
