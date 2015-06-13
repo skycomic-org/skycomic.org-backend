@@ -4,6 +4,8 @@
 	<title>SkyComic - 地表最快的漫畫網站</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="<?= base_url('css/style.css?v=' . JS_VERSION); ?>">
 	<?php $this->load->view('google'); ?>
 	<?php $this->load->view('partial/meta') ?>
 </head>
@@ -65,5 +67,3 @@
 
 
 </html>
-<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<?= base_url('css/style.css?v=' . JS_VERSION); ?>">
