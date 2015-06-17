@@ -243,8 +243,15 @@ class Api extends REST_Controller {
 	 * Dynamic APIs
 	 */
 	public function read_comic_error ($cid) {
-		if ($this->db->where('cid', $cid)
-				->update('index_chapter', ['error' => 1])) {
+		// cache since we'll update error state depends on your grab rate.
+		$this->output->cache($this->short_cache);
+
+		$result = $this->db->select('tid')->from('index_chapter')
+			->where('cid', $cid)->get();
+		if (0 != $result->num_rows()) {
+			$tid = $result->row()->tid;
+			$this->db->where('tid', $tid)
+				->update('index_chapter', ['error' => 1]);
 			$this->output->json(200);
 		} else {
 			$this->output->error(400, 'no such cid');
@@ -338,7 +345,7 @@ class Api extends REST_Controller {
 			$tid = $chapter->tid;
 			$uid = $this->user_id;
 
-			$sql = "INSERT DELAYED INTO `user_lastview` (`u_sn`, `cid`, `tid`, `page`)"
+			$sql = "INSERT INTO `user_lastview` (`u_sn`, `cid`, `tid`, `page`)"
 				 . " VALUES ({$uid}, {$cid}, {$tid}, {$page})"
 				 . " ON DUPLICATE KEY UPDATE `page` = {$page}";
 			$this->db->query($sql);
