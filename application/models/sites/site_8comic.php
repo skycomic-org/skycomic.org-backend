@@ -5,28 +5,60 @@ class Site_8comic extends CI_Model {
 	private $html;
 	private $CI;
 	private $url = array(
-		'index' => 'http://www.comicbus.com/comic/all.html',
-		'title' => 'http://www.comicbus.com/html/'
+		'base' => 'http://www.8comic.com',
+		'index' => 'http://www.8comic.com/comic/all.html',
+		'title' => 'http://www.8comic.com/html/',
+		'js' => 'http://www.8comic.com/js/comicview.js'
 	);
-	
+	private $cidURLMapping = array();
+
 	function __construct () {
 		$this->CI = & get_instance();
 		$this->CI->load->library('curl');
 		$this->CI->curl->tmp_folder(PRIVATE_PATH .'tmp/');
 		$this->CI->load->model('grab_model', 'grab');
 		$this->CI->load->helper('grab');
-		
+
 		$this->sid = $this->db->select('sid')
 							  ->from('sites')
 							  ->where('name', $this->siteName)
 							  ->get()->row()->sid;
+		$this->fetchJSMapping();
 	}
-	
+
+	private function fetchJSMapping () {
+		$jsContent = $this->grab->curlUseProxy($this->CI->curl)
+			->url($this->url['js'])
+			->add()->get();
+
+		if (empty($jsContent)) {
+			throw new Exception("Missing Js File, please check if " . $this->url['js'] . ' changed URL.');
+		}
+
+		if (!preg_match_all('/if *\( *(catid.+)\) *baseurl *= *"([^"]+)/', $jsContent, $results, PREG_SET_ORDER)) {
+			throw new Exception("js regex parse failed for " . $this->url['js']);
+		}
+
+		foreach ($results as $result) {
+			list(, $catIDString, $cidRelatedURL) = $result;
+			if (!preg_match_all("/catid *== *(\d+)/", $catIDString, $catIDResults, PREG_SET_ORDER)) {
+				throw new Exception("js regex parse failed for " . $this->url['js']);
+			}
+
+			foreach ($catIDResults as $cid) {
+				$cid = intval($cid[1]);
+				$this->cidURLMapping[$cid] = $this->url['base'] . $cidRelatedURL;
+			}
+		}
+
+		elog("successfully fetched js mapping ...");
+	}
+
 	// type = title | chapter
 	public function execute ($type) {
 		switch ( $type ) {
-			case 'title' : 
-			case 'chapter' : 
+			case 'title' :
+			case 'chapter' :
 				$this->{'update_'.$type}();
 				break;
 			default:
@@ -42,7 +74,7 @@ class Site_8comic extends CI_Model {
 		$result->img_ok = strlen($thumbnail) >= 7751;
 		return $result;
 	}
-	
+
 	public function image_comic ($cid, $page, $getLink) {
 		$sql='SELECT t1.meta, t1.pages, t1.`index`, t2.`index` as itemid'
 			.' FROM index_chapter AS t1'
@@ -53,8 +85,8 @@ class Site_8comic extends CI_Model {
 		$c_index = $r->index;
 		$itemid = $r->itemid;
 		$pages = $r->pages;
-		
-		if ( $meta ) {			
+
+		if ( $meta ) {
 			$m =(($page-1)/10)%10+(($page-1)%10)*3;
 			$img = page_convert($page). '_' .substr($meta['code'], $m, 3);
 			$url = "http://img". $meta['sid'] .".8comic.com/"
@@ -62,7 +94,7 @@ class Site_8comic extends CI_Model {
 			if ($getLink) {
 				return $url;
 			}
-			
+
 			if ( !$this->CI->grab->render_image([
 				'url' => $url,
 				'referer' => $this->url['title']
@@ -71,13 +103,13 @@ class Site_8comic extends CI_Model {
 				elog('site_8comic - image error, cid=' . $cid);
 				show_404();
 			}
-			
+
 		} else {
 			header('HTTP/404 File Not Found');
 			exit;
 		}
 	}
-	
+
 	public function image_thumbnail ($tid, $medium, $getLink) {
 		if ( !is_num($tid) ) {
 			return False;
@@ -107,7 +139,7 @@ class Site_8comic extends CI_Model {
 			exit;
 		}
 	}
-	
+
 	private function update_title () {
 		$html = $this->grab->curlUseProxy($this->CI->curl)
 			->url($this->url['index'])
@@ -139,13 +171,13 @@ class Site_8comic extends CI_Model {
 		foreach ($titles as $row) {
 			$urls[] = $this->url['title'] . $row['index'] .'.html';
 		}
-		
+
 		try {
 			$htmls = $this->grab->curlUseProxy($this->CI->curl)->getData_multi_tmp($urls);
 		} catch (Exception $e) {
 			throw $e;
 		}
-		
+
 		foreach ($titles as $j => $row) {
 			$this->html = &$htmls[$j];
 		    $title = array();
@@ -159,31 +191,32 @@ class Site_8comic extends CI_Model {
 				continue;
 			}
 			$chapters = $this->parseChapters();
-			
+
 			$update = $title;
 			$update['meta'] = json_encode($title['meta']);
 			$this->db->where('id', $row['id'])
-					 ->update('index_title', $update);			
+					 ->update('index_title', $update);
 			if ( $this->checkInDB($chapters, $row['id']) !== False ) {
 				continue;
 			}
 
-			
-			$url = $this->getUrlByCatId($title['meta']['catid']) . $row['index'] .'.html';
-			
+			$catID = intval($title['meta']['catid']);
+			$url = $this->url['base'] . $this->cidURLMapping[$catID] . $row['index'] .'.html';
+
 			$this->html = $this->grab->curlUseProxy($this->CI->curl)->url($url)->add()->get();
 
 			if (!$this->html) {
-				throw new Exception('Cannot access Comic Page.');
+				elog('Cannot access Comic Page.' . $url);
+				continue;
 			}
-			
+
 			try {
 				$codes = $this->parseCode();
 			} catch (Exception  $e ) {
 				elog("site_8comic - parse code error!");
 				continue;
 			}
-			
+
 			$each_vol = $this->code_opt($codes);
 
 			$comics = $this->CI->comic->read_chapters_by_tid($row['id']);
@@ -193,7 +226,7 @@ class Site_8comic extends CI_Model {
 				$meta = $each_vol[$index];
 				$pages = $meta['pages'];
 				unset($meta['pages']);
-				
+
 				$dbcomic = isset( $comics[$i-1] ) ? $comics[$i-1] : NULL;
 				if ( $dbcomic == NULL OR $dbcomic->name != $c_name OR $dbcomic->meta->num != $index ) {
 					$sql = 'UPDATE index_chapter SET `index` = `index` + 10000 WHERE tid = '.$row['id'].' AND `index` = '.$i;
@@ -207,7 +240,7 @@ class Site_8comic extends CI_Model {
 						'meta' => json_encode($meta),
 						'update_time' => date('Y/m/d H:i:s')
 					);
-					
+
 					$this->db->replace('index_chapter', $insert);
 					// reload new comics
 					$comics = $this->CI->comic->read_chapters_by_tid($row['id']);
@@ -248,7 +281,7 @@ class Site_8comic extends CI_Model {
 		}
 		return preg_replace('/^　　/', '', toUTF8($intro[1]));
 	}
-	
+
 	private function code_opt ($code) {
 		$hol = substr($code, 0, 3);
 		$regexp = "/(\w{3}\d|\w{2}\d{2}|\w\d{3})(\w\d|\d{2})(\d)(\w{2}\d|\w\d{2}|\d{3})(.{40})/";
@@ -274,12 +307,12 @@ class Site_8comic extends CI_Model {
 		preg_match('/(\d+)/', $item, $result);
 		return $result[1];
 	}
-	
+
 	// we need to check chapter and 8comic's index are all match
 	private function checkInDB ($chapters = False, $tid = False) {
 		$sql='SELECT name, meta, `error` FROM index_chapter WHERE `tid` = '.$tid;
 		$result = $this->db->query($sql)->result_array();
-		
+
 		$sql_metas = array();
 		foreach ($result as $row) {
 			if ( $row['error'] == 1 ) {
@@ -287,7 +320,7 @@ class Site_8comic extends CI_Model {
 			}
 			$sql_metas[ $row['name'] ] = json_decode($row['meta']);
 		}
-		
+
 		foreach ($chapters as $index => $chapter) {
 			$find = isset($sql_metas[$chapter]);
 			if ($find == False) {
@@ -296,42 +329,34 @@ class Site_8comic extends CI_Model {
 				return False;
 			}
 		}
-		
+
 		return True;
 	}
-	
-	private function getUrlByCatId ($catid) {
-		$sql='SELECT url FROM 8comic_js WHERE catid = '.$catid;
-		$q = $this->db->query($sql);
-		if($q->num_rows() == 0)
-			throw new Exception('8comic js has some problem.');
-		return $q->row()->url;
-	}
-	
+
 	private function parseStopRenew () {
 		preg_match('/<a href="#Comic">(.+)<\/td>/U', $this->html, $title);
 		if (!isset($title[1]))
 			throw new Exception(' parseStopRenew : Cannot get title.');
-		
+
 		$t = toUTF8($title[1]);
-		
+
 		return intval(strpos( $t ,"連載中") === False);
 	}
-	
+
 	private function parseCatid () {
 		preg_match("/cview\('\d+-\d+\.html',(\d+)\);/", $this->html, $catid);
 		if (!isset($catid[1]))
 			throw new Exception('Cannot get catid.');
 		return intval($catid[1]);
 	}
-	
+
 	private	function parseCode () {
 		preg_match('/var cs=\'([^\']+)\'/', $this->html, $code);
 		if (!isset($code[1]))
 			throw new Exception('Cannot get code.');
 		return $code[1];
 	}
-	
+
 	private function parseChapters () {
 		preg_match_all("/cview\('\d+-(\d+)\.html',\d+\);.+>.+\s(.+)</", $this->html, $chapters, PREG_SET_ORDER);
 		if ( !isset($chapters[0]) OR !isset($chapters[0][0]) ) {
