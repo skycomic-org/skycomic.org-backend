@@ -201,7 +201,7 @@ class Site_8comic extends CI_Model {
 			}
 
 			$catID = intval($title['meta']['catid']);
-			$url = $this->url['base'] . $this->cidURLMapping[$catID] . $row['index'] .'.html';
+			$url = $this->cidURLMapping[$catID] . $row['index'] .'.html';
 
 			$this->html = $this->grab->curlUseProxy($this->CI->curl)->url($url)->add()->get();
 
