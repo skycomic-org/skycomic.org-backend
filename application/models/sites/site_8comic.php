@@ -35,7 +35,7 @@ class Site_8comic extends CI_Model {
 			throw new Exception("Missing Js File, please check if " . $this->url['js'] . ' changed URL.');
 		}
 
-		if (!preg_match_all('/if *\( *(catid.+)\) *baseurl *= *"([^"]+)/', $jsContent, $results, PREG_SET_ORDER)) {
+		if (!preg_match_all('/if *\( *(catid.+)\) *baseurl[^"]+"([^"]+)/', $jsContent, $results, PREG_SET_ORDER)) {
 			throw new Exception("js regex parse failed for " . $this->url['js']);
 		}
 
