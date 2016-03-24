@@ -23,7 +23,6 @@ class Site_8comic extends CI_Model {
 							  ->from('sites')
 							  ->where('name', $this->siteName)
 							  ->get()->row()->sid;
-		$this->fetchJSMapping();
 	}
 
 	private function fetchJSMapping () {
@@ -50,8 +49,6 @@ class Site_8comic extends CI_Model {
 				$this->cidURLMapping[$cid] = $this->url['base'] . $cidRelatedURL;
 			}
 		}
-
-		elog("successfully fetched js mapping ...");
 	}
 
 	// type = title | chapter
@@ -59,6 +56,7 @@ class Site_8comic extends CI_Model {
 		switch ( $type ) {
 			case 'title' :
 			case 'chapter' :
+				$this->fetchJSMapping();
 				$this->{'update_'.$type}();
 				break;
 			default:
