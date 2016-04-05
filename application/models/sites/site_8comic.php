@@ -165,7 +165,8 @@ class ChapterFetcher {
 			try {
 				$this->fetchComic($title, $htmls[$idx]);
 			} catch (Exception $e) {
-				elog($e->getMessage());
+				elog($title['name'] . " got exception: " . $e->getMessage());
+				elog($e->getTraceAsString());
 				continue;
 			}
 		}
