@@ -313,7 +313,7 @@ class Site_8comic extends CI_Model {
 	 */
 	public function check () {
 		$result = (object)[];
-		$all_page = $this->grab->curlUseProxy($this->CI->curl)->url(ChapterFetcher::$gURLs->index)->add()->get();
+		$all_page = $this->grab->curlUseProxy($this->CI->curl)->url(site8comic\ChapterFetcher::$gURLs->index)->add()->get();
 		$thumbnail = $this->grab->curlUseProxy($this->CI->curl)->url('http://www.8comic.com/pics/0/7340s.jpg')->add()->get();
 		$result->site_ok = strlen($all_page) >= 887087;
 		$result->img_ok = strlen($thumbnail) >= 7751;
@@ -352,7 +352,7 @@ class Site_8comic extends CI_Model {
 
 		if (!$this->CI->grab->render_image([
 			'url' => $url,
-			'referer' => ChapterFetcher::$gURLs->title
+			'referer' => site8comic\ChapterFetcher::$gURLs->title
 		])) {
 			$this->CI->grab->signal_comic_error($cid);
 			elog('site_8comic - image error, cid=' . $cid);
@@ -394,7 +394,7 @@ class Site_8comic extends CI_Model {
 
 	private function update_title () {
 		$html = $this->grab->curlUseProxy($this->CI->curl)
-			->url(ChapterFetcher::$gURLs->index)
+			->url(site8comic\ChapterFetcher::$gURLs->index)
 			->add()->get();
 
 		$result = array();
