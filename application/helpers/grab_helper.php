@@ -26,3 +26,8 @@ function toBig5 ($fname) {
 function toUTF8 ($fname) {
 	return @iconv('BIG5', 'UTF-8', $fname);
 }
+
+function exit404 () {
+	header('HTTP/1.0 404 Not Found');
+	exit;
+}

@@ -1,6 +1,11 @@
 <?php
 
 function elog ($msg, $level = 'error') {
+	if (ENVIRONMENT == 'development') {
+		echo "[$level] $msg\n";
+	} else if ($level == 'debug') {
+		return ;
+	}
 	$LEVEL = strtoupper($level);
 	$date = date('Y-m-d');
 	$time = date('H:i:s');
@@ -16,8 +21,6 @@ function elog ($msg, $level = 'error') {
 	flock($fp, LOCK_UN);
 
 	fclose($fp);
-	if (ENVIRONMENT == 'development')
-		echo "[$level] $msg\n";
 }
 
 function elog_rotate () {

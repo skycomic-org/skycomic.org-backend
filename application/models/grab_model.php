@@ -1,8 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Grab_model extends CI_Model {
-
-
 	private $CI;
 	function __construct () {
 		parent::__construct();
@@ -29,6 +27,26 @@ class Grab_model extends CI_Model {
 			$finalResults[$site][] = $result;
 		}
 		return $finalResults;
+	}
+
+	/**
+	 * check whether chapters are all in database
+	 */
+	public function is_in_db ($chapterCount, $tid) {
+		$count = $this->db->select('COUNT(*) AS `count`')
+			->from('index_chapter')
+			->where('tid', $tid)
+			->get()->row()->count;
+
+		if ($chapterCount != $count) {
+			return False;
+		}
+
+		return $this->db->select('COUNT(*) AS `count`')
+			->from('index_chapter')
+			->where('tid', $tid)
+			->where('error', 1)
+			->get()->row()->count == 0;
 	}
 
 	public function signal_comic_error ($cid) {
@@ -108,7 +126,7 @@ class Grab_model extends CI_Model {
 				 . ' GROUP BY CHAPTER.tid';
 		$this->db->query($pop_sql);
 	}
-	
+
 	public function read_sites ($sid = False) {
 		if ($sid === False) {
 			$this->db->where('enable', '1');
@@ -123,7 +141,7 @@ class Grab_model extends CI_Model {
 					  ->get();
 		return $q->num_rows() != 0 ? $q->result_array() : False;
 	}
-	
+
 	public function read_title_by_sid ($sid) {
 		$sql = 'SELECT * FROM index_title WHERE stop_renew = 0 AND sid = '.$sid;
 		$result = $this->db->query($sql)->result_array();
@@ -132,7 +150,7 @@ class Grab_model extends CI_Model {
 		}
 		return $result;
 	}
-	
+
 	public function read_proxys ($usage='image') {
 		$sql='SELECT * FROM proxys WHERE available = 1 AND `usage` = "'. $usage .'"';
 		$result = $this->db->query($sql)->result_array();
@@ -144,7 +162,7 @@ class Grab_model extends CI_Model {
 		}
 		return $proxys;
 	}
-	
+
 	public function read_catid_by_name ($title) {
 		$sql='SELECT t2.category_id'
 			.' FROM chinese_MPS t1'
@@ -174,7 +192,7 @@ class Grab_model extends CI_Model {
 			show_404();
 		}
 	}
-	
+
 	public function image_thumbnail ($tid, $medium = False, $getLink = False) {
 		$this->CI = & get_instance();
 		$sql = 'SELECT sites.name FROM index_title'
@@ -189,7 +207,7 @@ class Grab_model extends CI_Model {
 			exit;
 		}
 	}
-	
+
 }
 
 // end of file grab_model.php

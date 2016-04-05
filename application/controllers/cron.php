@@ -15,39 +15,26 @@ class Cron extends CI_Controller {
 		$this->load->model('grab_model');
 		print_r($this->grab_model->check());
 	}
-	
+
 	public function cron_update ($type) {
+		elog('cron_update ' . $type, 'debug');
 		$this->load->model('grab_model');
 		$this->load->library('forkjobs');
 		$sites = $this->grab_model->read_sites();
-		$self = &$this;
-		if (GRAB_FORK) {
-			$this->db->close();
-		}
 		foreach ($sites as $row) {
-			$job = function () use( & $self, & $row, $type ) {
-				$self->db->reconnect();
-				$site = $row['name'];
-				$self->load->model('sites/site_'. $site, 'site_model_' . $site);
-				try {
-					$self->{'site_model_' . $site}->execute($type);
-				} catch (Exception $e) {
-					elog('site['.$site.'] Caught exception: ',  $e->getMessage());
-				}
-			};
-			if (GRAB_FORK) {
-				$this->forkjobs->add($job);
-			} else {
-				$job();
+			$site = $row['name'];
+			elog('updating ' . $site, 'debug');
+			$this->load->model('sites/site_'. $site, 'site_model_' . $site);
+			try {
+				$this->{'site_model_' . $site}->execute($type);
+			} catch (Exception $e) {
+				elog('site['.$site.'] Caught exception: ',  $e->getMessage());
 			}
 		}
-		if (GRAB_FORK) {
-			$this->forkjobs->waitall();
-			$this->db->reconnect();
-		}
+		elog('regen_title_info', 'debug');
 		$this->grab_model->regen_title_info();
 	}
-	
+
 	public function cron_popular () {
 		$this->load->model('pop_model');
 		$this->pop_model->cron();
@@ -58,7 +45,7 @@ class Cron extends CI_Controller {
 			'stop_renew' => 0
 		));
 	}
-	
+
 	// check proxy state and dynamiclly adjust weight
 	public function proxy () {
 		if (ENVIRONMENT != 'image') {
@@ -66,7 +53,7 @@ class Cron extends CI_Controller {
 		}
 		$timeout = 0.25;
 		$this->load->library('curl');
-		
+
 		$proxys = $this->db->select('ip, port')->from('proxys')->get()->result();
 		$origin = $this->curl->url('http://www.8comic.com/images/logo.gif')
 							->add()->get();
@@ -116,7 +103,7 @@ class Cron extends CI_Controller {
 			}
 		}
 	}
-	
+
 	// each five minute excutes.
 	public function rutine () {
 		$this->proxy();
@@ -138,7 +125,7 @@ class Cron extends CI_Controller {
 			$this->cron_update( 'title' );
 		}
 	}
-	
+
 	// forcing update chapters
 	public function update () {
 		$this->cron_update( 'chapter' );
