@@ -1,7 +1,7 @@
 <?php echo validation_errors('<div class="alert alert-error" data-alert="alert"><button type="button" class="close" data-dismiss="alert">&times;</button>', '</div>'); ?>
 <h2>請輸入您的Email, 我們將會寄重設密碼信件給您</h2>
 <form action="<?php echo base_url(); ?>auth/forgotten_password" method="post">
-	<fieldset>		
+	<fieldset>
 		<div class="clearfix">
 			<label for="email">Email</label>
 			<div class="input">

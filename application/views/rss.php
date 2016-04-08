@@ -7,8 +7,8 @@
 	<language>zh-tw</language>
 	<lastBuildDate><?php echo date('D, d M Y H:i:s'); ?> GMT</lastBuildDate>
 	<ttl>20</ttl>
-<?php 
-	foreach($new as $row): 
+<?php
+	foreach($new as $row):
 		$row = (array) $row;
 ?>
 	<item>

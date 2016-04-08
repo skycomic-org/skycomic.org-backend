@@ -15,7 +15,7 @@ class Images extends MEMBER_Controller {
 	public function index () {
 		$this->error();
 	}
-	
+
 	public function comic ($cid, $page, $getLink = False) {
 		if ( !is_num($cid) OR !is_num($page) ) {
 			$this->error();
@@ -27,7 +27,7 @@ class Images extends MEMBER_Controller {
 			$this->output->json(200);
 		}
 	}
-	
+
 	public function thumbnail ($tid, $medium = False, $getLink = False) {
 		if ( !is_num($tid) ) {
 			$this->error();

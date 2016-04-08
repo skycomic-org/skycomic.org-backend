@@ -7,7 +7,7 @@
 	<language>zh-tw</language>
 	<lastBuildDate><?php echo date('D, d M Y H:i:s'); ?> GMT</lastBuildDate>
 	<ttl>20</ttl>
-<?php 
+<?php
 	foreach($data as $row): $row = (object) $row;
 ?>
 	<item>
@@ -28,15 +28,15 @@
 */?><?= '<?xml version="1.0" encoding="UTF-8"?>' ?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title>SkyComic 我的最愛漫畫!</title> 
+  <title>SkyComic 我的最愛漫畫!</title>
   <link href="http://www.skycomic.org/" />
   <link rel="self" href="http://<?= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>" />
   <updated><?= date('Y-m-d', strtotime($data[0]['update_time'])) . 'T' . date('H:i:s', strtotime($data[0]['update_time'])) . 'Z' ?></updated>
-  <author> 
+  <author>
     <name>Skycomic.org</name>
   </author>
   <id>urn:uuid:<?= date('Y-m-d-H-i-s', strtotime($data[0]['update_time'])) ?></id>
-<?php 
+<?php
 	foreach($data as $row): $row = (object) $row;
 ?>
   <entry>

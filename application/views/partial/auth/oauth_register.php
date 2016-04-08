@@ -1,7 +1,7 @@
 <?php echo validation_errors('<div class="alert alert-error" data-alert="alert"><button type="button" class="close" data-dismiss="alert">&times;</button>', '</div>'); ?>
 <h2>hi, <?php echo $name; ?>, 由於您是第一次使用，請填寫一些資料!</h2>
 <form action="<?php echo base_url(); ?>auth/oauth_register" method="post">
-	<fieldset>		
+	<fieldset>
 		<div class="clearfix">
 			<label for="nickname">暱稱</label>
 			<div class="input">

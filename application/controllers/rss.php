@@ -15,7 +15,7 @@ class Rss extends CI_Controller {
 		$data['new'] = $this->comic_model->read_chapters_newest($this->limit);
 		$this->load->view('rss', $data);
 	}
-	
+
 	function json () {
 		$this->output->cache(30);
 		$this->load->model('comic_model');

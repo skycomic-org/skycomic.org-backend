@@ -20,7 +20,7 @@ class MEMBER_Controller extends CI_Controller
 			$this->auth_model->login('guest', 'guestguest');
 		}
 	}
-	
+
 } // End of MEMBER_Controller class
 
 /* End of file MEMBER_Controller.php */

@@ -12,13 +12,13 @@ class REST_Controller extends MX_Controller
 	/**
 	 * Constructor
 	 */
-	
+
 	protected $limit = 15;
-	
+
 	public function __construct () {
 		parent::__construct();
 	}
-	
+
 	// remap controller name
 	public function _remap ($method, $params = array()) {
 		$prefix = '';
@@ -51,7 +51,7 @@ class REST_Controller extends MX_Controller
 		}
 		$this->output->json(404, 'method not found.');
 	}
-	
+
 } // End of MEMBER_Controller class
 
 /* End of file MEMBER_Controller.php */

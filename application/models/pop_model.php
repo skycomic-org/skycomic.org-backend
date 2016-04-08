@@ -1,12 +1,12 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class Pop_model extends CI_Model {
-	
+
 	function __construct () {
 		parent::__construct();
 		$this->user_id = $this->session->userdata('user_id');
 	}
-	
+
 	public function cron () {
 		$now = new DateTime();
 		if ( $now->format('d') == 1 ) { // 每月1日
@@ -18,7 +18,7 @@ class Pop_model extends CI_Model {
 		$this->db->query('UPDATE pop SET today=0');
 		$this->db->query('TRUNCATE TABLE `pop_ip`');
 	}
-	
+
 	public function create ($tid, $cid) {
 		$count = $this->db->where('cid', $cid)
 						  ->count_all_results('pop');
@@ -45,7 +45,7 @@ class Pop_model extends CI_Model {
 	public function last_view ($limit) {
 		$this->load->library('ecache');
 		$CI = $this;
-		$q = $this->ecache->get('comic_user_lastview_' . $limit, 
+		$q = $this->ecache->get('comic_user_lastview_' . $limit,
 			function () use(&$CI, $limit) {
 				$sql = implode(' ', array('SELECT * FROM ',
 						'(SELECT *',
@@ -70,7 +70,7 @@ class Pop_model extends CI_Model {
 	public function read_titles ($type, $limit) {
 		$this->load->library('ecache');
 		$CI = $this;
-		$q = $this->ecache->get('comic_titles_' . $type . '_' . $limit, 
+		$q = $this->ecache->get('comic_titles_' . $type . '_' . $limit,
 			function () use(&$CI, $type, $limit) {
 				$t1 = 'SELECT t3.id AS tid, SUM(t1.'.$type.') AS `pop`, t3.name as title'
 					. ' FROM pop AS t1, index_chapter AS t2, index_title AS t3'
@@ -83,11 +83,11 @@ class Pop_model extends CI_Model {
 			}, 60*60*2);
 		return $q;
 	}
-	
+
 	public function read_chapters ($type, $limit) {
 		$this->load->library('ecache');
 		$CI = $this;
-		$q = $this->ecache->get('comic_chapters_' . $type . '_' . $limit, 
+		$q = $this->ecache->get('comic_chapters_' . $type . '_' . $limit,
 			function () use(&$CI, $type, $limit) {
 				$sql = 'SELECT t3.id AS tid, t1.cid, `'.$type.'` AS `pop`, t2.name as chapter, t3.name AS `title`'
 					 . ' FROM pop AS t1, index_chapter AS t2, index_title AS t3'

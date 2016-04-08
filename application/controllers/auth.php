@@ -6,11 +6,11 @@ class Auth extends CI_Controller {
 		parent::__construct();
 		$this->load->library('form_validation');
 	}
-	
+
 	public function index () {
 		redirect('auth/login');
 	}
-	
+
 	public function logout () {
 		$this->auth_model->logout();
 		redirect('auth/login');
@@ -25,11 +25,11 @@ class Auth extends CI_Controller {
 			redirect('main');
 		}
 	}
-	
+
 	public function logined () {
 		echo $this->auth_model->logined() ? "1" : "0";
 	}
-	
+
 	public function login ($mobileDeviceId = false) {
 		$this->setMobileSession($mobileDeviceId);
 		if ( !$this->_is_mobile_login() && $this->auth_model->logined() ) {
@@ -55,7 +55,7 @@ class Auth extends CI_Controller {
 			}
 		}
 	}
-	
+
 	public function register () {
 		$this->form_validation->set_rules('id', '帳號', 'trim|required|alpha_numeric|min_length[3]|max_length[20]|callback__username_check');
 		$this->form_validation->set_rules('pw', '密碼', 'required|min_length[8]|max_length[20]');
@@ -65,7 +65,7 @@ class Auth extends CI_Controller {
 		$this->form_validation->set_rules('name', '姓名', 'trim|required|min_length[2]|max_length[20]');
 		$this->form_validation->set_rules('relation', '從哪裡知道這個網站', 'trim|required|min_length[2]|max_length[50]');
 		$this->form_validation->set_rules('captcha', '認證碼', 'trim|required|callback__captcha_check');
-		
+
 		if ( $this->form_validation->run() === True && $this->auth_model->register()) {
 			$this->session->set_flashdata('success', '恭喜您完成註冊!請開啟您的email收信驗證之後才可以使用喔，請特別注意若沒收到信請到垃圾信夾中搜尋!');
 			redirect('auth/login');
@@ -92,7 +92,7 @@ class Auth extends CI_Controller {
 				 ->render('layout/login');
 		}
 	}
-	
+
 	public function forgotten_password_complete ($id, $auth) {
 		if ( $this->auth_model->auth_check($id, $auth) ) {
 			$this->form_validation->set_rules('pw', '密碼', 'required|min_length[8]|max_length[20]');
@@ -114,7 +114,7 @@ class Auth extends CI_Controller {
 			redirect('auth/login');
 		}
 	}
-	
+
 	public function activate ($id, $auth) {
 		if ( $this->auth_model->activate($id, $auth) ) {
 			$this->session->set_flashdata('success', '恭喜您完成認證!可以開始享受SkyComic囉!');
@@ -124,7 +124,7 @@ class Auth extends CI_Controller {
 			redirect('auth/login');
 		}
 	}
-	
+
 	public function captcha ($rand=False) {
 		$this->load->library('simplecaptcha');
 		$this->simplecaptcha->CreateImage();
@@ -142,7 +142,7 @@ class Auth extends CI_Controller {
 			return True;
 		}
 	}
-	
+
 	public function _email_check ($email) {
 		if ( ( $msg = $this->auth_model->email_check($email) ) !== True ) {
 			$this->form_validation->set_message('_email_check', $msg);
@@ -169,12 +169,12 @@ class Auth extends CI_Controller {
 			return True;
 		}
 	}
-	
-	
+
+
 	/*
 	 * Openid related functions
 	 */
-	
+
 	public function oauth ($site) {
 		if ( False === $this->auth_model->oauth($site) ) {
 			redirect('auth/oauth_register');
@@ -182,12 +182,12 @@ class Auth extends CI_Controller {
 			$this->login_redirect();
 		}
 	}
-	
+
 	public function oauth_register () {
 		if ( ALLOW_REGISTER ) {
 			$this->form_validation->set_rules('nickname', '暱稱', 'trim|required|min_length[2]|max_length[254]');
 			$this->form_validation->set_rules('relation', '從哪裡知道這個網站', 'trim|required|min_length[2]|max_length[50]');
-			
+
 			if ( $this->form_validation->run() === True && $this->auth_model->oauth_register()) {
 				$this->session->unset_userdata('oauth_data');
 				$this->session->set_flashdata('success', '恭喜您完成註冊!');
@@ -214,7 +214,7 @@ class Auth extends CI_Controller {
 		if (False !== $mobileDeviceId)
 			$this->session->set_userdata('mobileDeviceId', $mobileDeviceId);
 	}
-	
+
 	private function _mobile_login () {
 		if ($mobileDeviceId = $this->session->userdata('mobileDeviceId')) {
 			$this->session->unset_userdata('mobileDeviceId');

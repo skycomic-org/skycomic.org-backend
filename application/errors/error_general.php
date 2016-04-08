@@ -9,24 +9,24 @@
 </head>
 
 <body>
-	
-	
-		
-	<div class="navbar navbar-fixed-top"> 
-      <div class="navbar-inner"> 
-        <div class="container"> 
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> 
-            <span class="icon-bar"></span> 
-            <span class="icon-bar"></span> 
-            <span class="icon-bar"></span> 
-          </a> 
-          <a class="brand" href="/">SkyComic</a>
-          <div class="nav-collapse"> 
 
-          </div><!--/.nav-collapse --> 
-        </div> 
-      </div> 
-    </div> 
+
+
+	<div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">SkyComic</a>
+          <div class="nav-collapse">
+
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
 
 	<div class="container" style="position:relative;margin-top:60px;">
 		<h1><?php echo $heading; ?></h1>

@@ -1,13 +1,13 @@
 <?php
 /**
  * phpIp2Country class
- * 
+ *
  * @author Mariusz Górski
  * @copyright 2008 Mariusz Górski
  * @name phpIp2Country
  * @version 1.0
  * @link http://code.google.com/p/php-ip-2-country/
- * 
+ *
  * @todo (static?) function to get full countries list
  */
 
@@ -34,20 +34,20 @@ class Ip2country {
 		}else{
 			$this->ip = $ip;
 		}
-		
+
 		if(!is_array($dbConfig)){
 			die('Error! Database configuration not set! #1');
 		}else{
 			$this->dbConfig = $dbConfig;
 		}
-		
+
 		$this->dbConnect();
-		
+
 		$this->ipArr = $this->getIpArr();
 		$this->ipValue = $this->getIpValue();
-		
+
 		$this->ipInfoArr = $this->dbGetRow($this->getIpSelectSQL());
-		
+
 		if(!$this->ipInfoArr){
 			die ('Error during reciving informations about IP address!');
 		}else{
@@ -57,19 +57,19 @@ class Ip2country {
 			$this->ipInfoArr['IP_TO_STR'] = $this->getIpFromValue($this->ipInfoArr['IP_TO']);
 		}
 	}
-	
+
 	function __destruct(){
 		if($this->db)
 			mysql_close($this->db);
 	}
-	
+
 	/**
 	 * IP address
 	 *
 	 * @var string
 	 */
 	public $ip = '';
-	
+
 	/**
 	 * Numerical representation of IP address
 	 *       Example: (from Right to Left)
@@ -78,7 +78,7 @@ class Ip2country {
 	 * @var integer
 	 */
 	private $ipValue = NULL;
-	
+
 	/**
 	 * database conection configuration
 	 * feel free to replece our db conection and use Your favorite database abstraction layer (ie. ADOdb)
@@ -86,7 +86,7 @@ class Ip2country {
 	 * @var array
 	 */
 	public $dbConfig = array();
-	
+
 	/**
 	 * database conection object
 	 * feel free to replece our db conection and use Your favorite database abstraction layer (ie. ADOdb)
@@ -94,21 +94,21 @@ class Ip2country {
 	 * @var object
 	 */
 	public $db = false;
-	
+
 	/**
 	 * IP address in form of array of integer values
 	 *
 	 * @var string
 	 */
 	private $ipArr = array();
-	
+
 	/**
 	 * IP address information array
 	 *
 	 * @var string
 	 */
 	private $ipInfoArr = false;
-	
+
 	/**
 	 * returns information about IP adrress
 	 *
@@ -158,7 +158,7 @@ class Ip2country {
 				break;
 		}
 	}
-	
+
 	/**
 	 * validate IP address
 	 *
@@ -168,7 +168,7 @@ class Ip2country {
 	private function chceckIpAddr($ip=''){
 		return preg_match('/^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$/i',$ip);
 	}
-	
+
 	/**
 	 * returns IP address in array of integer values
 	 *
@@ -183,7 +183,7 @@ class Ip2country {
 			intval($vars[3])
 		);
 	}
-	
+
 	/**
 	 * returns numerical representation of IP address.
 	 *       Example: (from Right to Left)
@@ -195,7 +195,7 @@ class Ip2country {
 	private function getIpValue(){
 		return $this->ipArr[3] + ( $this->ipArr[2] * 256 ) + ( $this->ipArr[1] * 256 * 256 ) + ( $this->ipArr[0] * 256 * 256 * 256 );
 	}
-	
+
 	/**
 	 * returns IP numer from numerical representation.
 	 *       Example: (from Right to Left)
@@ -217,7 +217,7 @@ class Ip2country {
 			return $ip;
 		}
 	}
-	
+
 	/**
 	 * returns SQL used to get iformation from ip2country database
 	 *
@@ -230,7 +230,7 @@ class Ip2country {
 		}
 		return 'SELECT * FROM '.$this->dbConfig['tableName'].' WHERE IP_FROM <= '.$this->ipValue.' AND IP_TO >= '.$this->ipValue;
 	}
-	
+
 	/**
 	 * connect to database
 	 * feel free to replece our function and use here Your favorite(s) database abstraction layer (ie. ADOdb)
@@ -273,7 +273,7 @@ class Ip2country {
 			die('Error! Database configuration not set! #2');
 		}
 	}
-	
+
 	/**
 	 * executes given SQL querry and returns one row
 	 * feel free to replece our function and use here Your favorite(s) database abstraction layer (ie. ADOdb)

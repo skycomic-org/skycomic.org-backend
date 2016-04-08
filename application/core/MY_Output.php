@@ -3,7 +3,7 @@
 class MY_Output extends CI_Output {
 	private $cache_instance = null;
 	protected $json;
-	
+
 	function __construct () {
 		parent::__construct();
 		$this->cleanup();
@@ -13,7 +13,7 @@ class MY_Output extends CI_Output {
 		header_remove('Set-Cookie');
 		$this->set_header('X-Cacheable: True');
 	}
-	
+
 	public function cleanup () {
 		$this->json = array(
 			'http' => array(
@@ -23,7 +23,7 @@ class MY_Output extends CI_Output {
 		);
 		return $this;
 	}
-	
+
 	function set_data ($key, $val=NULL) {
 		if ( $val !== NULL ) {
 			$this->json['data'][$key] = $val;
@@ -32,7 +32,7 @@ class MY_Output extends CI_Output {
 		}
 		return $this;
 	}
-	
+
 	function http_code ($code = NULL) {
 		if ( $code === NULL ) {
 			return $this->json['http']['code'];
@@ -41,7 +41,7 @@ class MY_Output extends CI_Output {
 			return $this;
 		}
 	}
-	
+
 	function http_msg ($msg = NULL) {
 		if ( $msg === NULL ) {
 			return $this->json['http']['msg'];
@@ -50,11 +50,11 @@ class MY_Output extends CI_Output {
 			return $this;
 		}
 	}
-	
+
 	function obj () {
 		return (object)$this->json;
 	}
-	
+
 	function json ($code=NULL, $msg=NULL) {
 		if ($code !== NULL) {
 			$this->http_code($code);
@@ -70,7 +70,7 @@ class MY_Output extends CI_Output {
 		$this->set_content_type('application/json');
 		$this->set_output(json_encode($this->json));
 	}
-	
+
 	function error ($code=NULL, $msg=NULL) {
 		$this->json($code, $msg);
 		$this->_display();

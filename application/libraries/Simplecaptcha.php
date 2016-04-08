@@ -28,7 +28,7 @@ class Simplecaptcha {
 
 	/**
 	 * Max word length (for non-dictionary random text generation)
-	 * 
+	 *
 	 * Used for dictionary words indicating the word-length
 	 * for font-size modification purposes
 	 */
@@ -85,7 +85,7 @@ class Simplecaptcha {
 	 */
 	public $scale = 2;
 
-	/** 
+	/**
 	 * Blur effect for better image quality (but slower image processing).
 	 * Better image results with scale=3
 	 */
@@ -93,7 +93,7 @@ class Simplecaptcha {
 
 	/** Debug? */
 	public $debug = false;
-	
+
 	/** Image format: jpeg or png */
 	public $imageFormat = 'jpeg';
 
@@ -102,19 +102,19 @@ class Simplecaptcha {
 	public $im;
 
 	private $CI;
-	
+
 	public function __construct($config = array()) {
 		$this->resourcesPath = PRIVATE_PATH . 'resources';
 		$this->CI =& get_instance();
 	}
-	
-	
+
+
 	public function CreateImage() {
 		$ini = microtime(true);
 
 		/** Initialization */
 		$this->ImageAllocate();
-		
+
 		/** Text insertion */
 		$text = $this->GetCaptchaText();
 		$fontcfg  = $this->fonts[array_rand($this->fonts)];
@@ -189,7 +189,7 @@ class Simplecaptcha {
 		}
 		return $text;
 	}
-	
+
 	/**
 	 * Random text generation
 	 *
@@ -215,7 +215,7 @@ class Simplecaptcha {
 		}
 		return $text;
 	}
-	
+
 	/**
 	 * Random dictionary word generation
 	 *
@@ -299,7 +299,7 @@ class Simplecaptcha {
 			$x += ($coords[2]-$x) + ($fontcfg['spacing']*$this->scale);
 		}
 	}
-	
+
 	/**
 	 * Wave filter
 	 */
@@ -337,7 +337,7 @@ class Simplecaptcha {
 		imagedestroy($this->im);
 		$this->im = $imResampled;
 	}
-	
+
 	/**
 	 * File generation
 	 */

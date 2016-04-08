@@ -8,56 +8,56 @@ class Comment_model extends CI_Model {
 		parent::__construct();
 		$this->user_id = $this->session->userdata('user_id');
 	}
-	
+
 	public function get_error () {
 		$e = $this->error;
 		$this->error = '';
 		return $e;
 	}
-	
+
 	private function set_error ($error) {
 		$this->error = $error;
 		return $this;
 	}
-	
+
 	public function set_limit ($limit) {
 		$this->limit = $limit;
 		return $this;
 	}
-	
+
 	private function read_sql () {
 		$hush_sql = 'SELECT comment_id, COUNT(*) AS hush FROM comic_comment_push WHERE push = -1 GROUP BY comment_id ';
 		$push_sql = 'SELECT comment_id, COUNT(*) AS push FROM comic_comment_push WHERE push = 1 GROUP BY comment_id ';
 		$this->db->select('U.sn AS u_sn, U.nickname, CC.id, CC.cid, IC.name AS chapter, CC.parent_id, CC.title, CC.content, CC.`time`, PUSH.push, HUSH.hush')
 				 ->from('comic_comment AS CC')
-				 ->join('('. $hush_sql .') AS HUSH', 'CC.id = HUSH.comment_id', 'left') 
+				 ->join('('. $hush_sql .') AS HUSH', 'CC.id = HUSH.comment_id', 'left')
 				 ->join('('. $push_sql .') AS PUSH', 'CC.id = PUSH.comment_id', 'left')
 				 ->join('user AS U', 'U.sn = CC.u_sn', 'left')
 				 ->join('index_chapter AS IC', 'IC.cid = CC.cid', 'left')
 				 ->order_by('CC.id', 'desc');
 	}
-	
+
 	private function fixDate (&$row) {
 		$date = $row['time'];
 		$row['dateStr'] = timeFix($date);
 		$row['date'] = substr($date, 0, 10);
 		$row = (object) $row;
 	}
-	
+
 	private function fixContent ($content) {
 		$content = htmlspecialchars($content);
 		$content = str_replace("\n",'<br />',$content);
 		$content = str_replace("\r",'',$content);
 		return $content;
 	}
-	
+
 	public function create ($data) {
 		$data['time'] = date('Y/m/d H:i:s');
 		$data['u_sn'] = $this->user_id;
 		$data['content'] = $this->fixContent($data['content']);
 		return $this->db->insert('comic_comment', $data);
 	}
-	
+
 	public function update ($comment_id, $content) {
 		$cdata = $this->read_by_comment_id($comment_id);
 		if (count($cdata) == 0) {
@@ -73,7 +73,7 @@ class Comment_model extends CI_Model {
 							 ));
 		}
 	}
-	
+
 	public function read ( &$where_func, $parent_id = NULL, $count_query = False ) {
 		$where_func();
 		$this->read_sql();
@@ -128,11 +128,11 @@ class Comment_model extends CI_Model {
 		};
 		$this->db->limit($this->limit, ($page - 1) * $this->limit);
 		return array(
-			'data' => $this->read($where_func), 
+			'data' => $this->read($where_func),
 			'pages' => ceil($this->read($where_func, NULL, True) / $this->limit)
 		);
 	}
-	
+
 	public function read_by_comment_id ($cid) {
 		$where_func = function () {};
 		$this->db->where('CC.id', $cid);

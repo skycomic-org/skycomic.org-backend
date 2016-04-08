@@ -9,7 +9,7 @@ class MY_Input extends CI_Input {
 	function get_method () {
 		return $_SERVER['REQUEST_METHOD'];
 	}
-	
+
 	public function put ($index) {
 		$_PUT = array();
 		if ('PUT' == $_SERVER['REQUEST_METHOD']) {

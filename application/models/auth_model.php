@@ -17,7 +17,7 @@ class Auth_model extends CI_Model {
 	public function invalidIP () {
 		return $this->db->select('count(*) AS count')->from('abuse')->where('ip', $_SERVER['REMOTE_ADDR'])->get()->row()->count != 0;
 	}
-	
+
 	public function logined () {
 		if ( $this->getUserId() !== False ) {
 			return True;
@@ -34,7 +34,7 @@ class Auth_model extends CI_Model {
 			return False;
 		}
 	}
-	
+
 	public function logout () {
 		$this->session->sess_destroy();
 		$this->load->helper('cookie');
@@ -72,7 +72,7 @@ class Auth_model extends CI_Model {
 		}
 		return False;
 	}
-	
+
 	// check if id and pass okay
 	public function login ($id, $pw) {
 		$userdata = $this->CI->user->read_by_id($id);
@@ -91,7 +91,7 @@ class Auth_model extends CI_Model {
 			return '沒有這個帳號';
 		}
 	}
-	
+
 	// in data: sn, id, name, setting
 	public function real_login ($data) {
 		$data = (object) $data;
@@ -104,7 +104,7 @@ class Auth_model extends CI_Model {
 			$this->db->where('sn', $data->sn)
 				->update('user', $update);
 		}
-	
+
 		// setting session
 		$session = array(
 			'user_id' => $data->sn,
@@ -115,7 +115,7 @@ class Auth_model extends CI_Model {
 			// 'setting' => (isset($data->setting) && $data->setting ? json_decode($data->setting) : new stdClass())
 		);
 		$this->session->set_userdata($session);
-		
+
 		// isNCTU Check
 		if ( !$data->isNCTU && isset($_SERVER['REMOTE_ADDR']) && preg_match('/^140\.113/', $_SERVER['REMOTE_ADDR']) ) {
 			$this->db->where('sn', $data->sn)
@@ -148,7 +148,7 @@ class Auth_model extends CI_Model {
 			'secure' => False
 		));
 	}
-	
+
 	public function register ($data = False) {
 		if ($data === False) { // if openid
 			// data = post to use.
@@ -185,7 +185,7 @@ class Auth_model extends CI_Model {
 			return False;
 		}
 	}
-	
+
 	// data need name, id, auth, email
 	private function sendmail ($view, $subject, $data) {
 		$data = (object) $data;
@@ -197,17 +197,17 @@ class Auth_model extends CI_Model {
         $adress		= $data->email;
         $SendName	= $data->name;
 		$body 		= $this->CI->load->view($view, $data, True);
-		
+
         $this->phpmailer->AddReplyTo($ReplyTo, $ReplyName);
         $this->phpmailer->SetFrom($SetFrom, $SetName);
         $this->phpmailer->AddAddress($adress, $SendName);
         $this->phpmailer->Subject    = $subject;
 		$this->phpmailer->AltBody    = "To view the message, please use an HTML compatible email viewer!"; // optional, comment out and test
         $this->phpmailer->MsgHTML($body);
-		
+
         return $this->phpmailer->Send();
 	}
-	
+
 	public function change_password ($oldpw, $newpw, $newpw2) {
 		if ( $newpw != $newpw2 ) {
 			$this->session->set_flashdata('error', '新密碼兩次輸入不同');
@@ -242,7 +242,7 @@ class Auth_model extends CI_Model {
 			return False;
 		}
 	}
-	
+
 	public function forgotten_password_complete ($id, $newpw, $auth) {
 		if ( $this->auth_check($id, $auth) ) {
 			$update = array(
@@ -256,7 +256,7 @@ class Auth_model extends CI_Model {
 			return False;
 		}
 	}
-	
+
 	public function activate ($id, $auth) {
 		$userdata = $this->CI->user->read_by_id($id);
 		if ( count($userdata) == 1 && $userdata->auth == $auth ) {
@@ -272,7 +272,7 @@ class Auth_model extends CI_Model {
 			return False;
 		}
 	}
-	
+
 	public function captcha_check ($captcha) {
 		if ($this->session->flashdata('captcha') == $captcha) {
 			return True;
@@ -280,7 +280,7 @@ class Auth_model extends CI_Model {
 			return '認證碼輸入錯誤!';
 		}
 	}
-	
+
 	public function username_check ($id) {
 		if (count($this->CI->user->read_by_id($id)) == 0) {
 			return True;
@@ -288,7 +288,7 @@ class Auth_model extends CI_Model {
 			return '帳號「'.$id.'」已經有人使用囉!';
 		}
 	}
-	
+
 	public function email_check ($email) {
 		if (count($this->CI->user->read_by_email($email)) == 0) {
 			return True;
@@ -296,16 +296,16 @@ class Auth_model extends CI_Model {
 			return '你已經使用這個Email註冊過了!';
 		}
 	}
-	
+
 	public function auth_check ($id, $auth) {
 		$userdata = $this->CI->user->read_by_id($id);
 		return count($userdata) != 0 && $userdata->auth == $auth;
 	}
-	
+
 	/*
 	 * Oauth related functions
 	 */
-		
+
 	private function oauth_redirect_uri ($second = False) {
 		$https = $_SERVER["SERVER_PORT"] == 443 ? 's' : '';
 		if (!$second) {
@@ -318,7 +318,7 @@ class Auth_model extends CI_Model {
 			return $uri;
 		}
 	}
-	
+
 	public function oauth_register () {
 		global $db, $session;
 		$insert = $this->session->userdata('oauth_data');
@@ -327,7 +327,7 @@ class Auth_model extends CI_Model {
 		$insert['id'] = md5( $insert['id'].$insert['site'] );
 		$insert['pw'] = md5( $insert['id'].$insert['site'] );
 		$insert['setting'] = array('oauth' => True);
-		
+
 		if ( !$this->register( $insert ) ) {
 			return False;
 		} else {
@@ -337,7 +337,7 @@ class Auth_model extends CI_Model {
 		$this->real_login( $this->user->read_by_user_id($user_id) );
 		return True;
 	}
-	
+
 	public function oauth_old_user (&$data, $u_sn) {
 		$data['meta'] = isset($data['meta']) ? $data['meta'] : array();
 		$data['meta']['rawid'] = $data['id'];
@@ -348,7 +348,7 @@ class Auth_model extends CI_Model {
 			'meta' => json_encode($data['meta'])
 		));
 	}
-	
+
 	public function oauth_login ($data, $site) {
 		$data['open_id'] = base64_encode($data['id']);
 		$data['site'] = $site;
@@ -370,7 +370,7 @@ class Auth_model extends CI_Model {
 			return False;
 		}
 	}
-	
+
 	public function oauth ($site) {
 		switch ($site) {
 			case 'facebook':
@@ -382,7 +382,7 @@ class Auth_model extends CI_Model {
 				show_404();
 		}
 	}
-	
+
 	public function oauth_google () {
 		if ( count($_GET) == 0 ) {
 			$this->load->library('curl');
@@ -409,7 +409,7 @@ class Auth_model extends CI_Model {
 						->key_value('openid.realm','http://'.$_SERVER['HTTP_HOST'].'/')
 						->key_value('openid.return_to', $this->oauth_redirect_uri())
 						->query_string();
-			redirect($uri, 'refresh');		
+			redirect($uri, 'refresh');
 		} else {
 			$this->oauth_redirect_uri(True);
 			// receiveing oauth data.
@@ -420,7 +420,7 @@ class Auth_model extends CI_Model {
 				$data = array();
 				$data['id'] = $openid_identity;
 				$data['email'] = $openid_ext1_value_email;
-				
+
 				if($openid_ext1_value_language == 'zh-TW'){
 					$data['name'] = $openid_ext1_value_lastname.$openid_ext1_value_firstname;
 				} else {
@@ -430,7 +430,7 @@ class Auth_model extends CI_Model {
 			}
 		}
 	}
-	
+
 	public function oauth_facebook () {
 		$this->load->library('curl');
 		$app_id = '153395381407572';
@@ -456,7 +456,7 @@ class Auth_model extends CI_Model {
 				exit;
 			}
 			$userid = strstr($access_token, '|', True);
-			
+
 			//Step 3:Get User data.
 			$url = 'https://graph.facebook.com/me';
 			$this->curl->key_value('access_token', $access_token);
@@ -475,7 +475,7 @@ class Auth_model extends CI_Model {
 			}
 		}
 	}
-	
+
 	public function oauth_yahoo () {
 		$consumer_key = 'dj0yJmk9c2xsSUhuTVdsSlJBJmQ9WVdrOVVsTnpVMkV6TlRRbWNHbzlNVFl4TWpNMU16ZzJNZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD1lZQ--';
 		if ( count($_GET) == 0 ) {

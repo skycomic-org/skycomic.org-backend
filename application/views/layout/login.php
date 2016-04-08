@@ -11,23 +11,23 @@
 </head>
 
 <body>
-    <div id="header-menu" class="navbar navbar-fixed-top navbar-inverse"> 
-      <div class="navbar-inner"> 
-        <div class="container-fluid"> 
-          <a class="btn btn-navbar" data-toggle="collapse" data-target="#topmenu"> 
-            <span class="icon-bar"></span> 
-            <span class="icon-bar"></span> 
-            <span class="icon-bar"></span> 
-          </a> 
+    <div id="header-menu" class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target="#topmenu">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
           <a class="brand" href="<?php echo base_url(); ?>">SkyComic</a>
-          <div class="nav-collapse"> 
-            <ul class="nav"> 
+          <div class="nav-collapse">
+            <ul class="nav">
 		<li><a target="_blank" href="https://github.com/skycomic-org/skycomic.org/issues">錯誤回報</a></li>
 		<li><a target="_blank" href="https://github.com/skycomic-org/skycomic.org">Github</a></li>
-            </ul> 
-          </div><!--/.nav-collapse --> 
-        </div> 
-      </div> 
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
     </div>
 
     <div class="container" id="container" style="margin-top: 60px;">
@@ -58,7 +58,7 @@
 	</script>
 	<script src="<?= CDN_LINK . 'js/libs/require-min.js' ?>"></script>
 	<script src="<?= CDN_LINK . 'js/login.js?v=' . JS_VERSION ?>"></script>
-	
+
 	<?php $this->load->view('killie'); ?>
 	<footer>
 		<p style="text-align:center;">Skycomic © 2009-<?php echo date('Y'); ?></p>

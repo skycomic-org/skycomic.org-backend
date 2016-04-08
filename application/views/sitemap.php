@@ -6,7 +6,7 @@
     <loc><?= $url->url ?></loc>
     <?php if (isset($url->image)): ?>
     <image:image>
-       <image:loc><?= $url->image ?></image:loc> 
+       <image:loc><?= $url->image ?></image:loc>
     </image:image>
     <?php endif; ?>
   </url>

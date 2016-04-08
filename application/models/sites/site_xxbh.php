@@ -11,7 +11,7 @@ class Site_xxbh extends CI_Model {
 	);
 
 	private $dbchapters;
-	
+
 	function __construct () {
 		$this->url = (object) $this->url;
 		$this->CI = & get_instance();
@@ -21,7 +21,7 @@ class Site_xxbh extends CI_Model {
 		$this->CI->load->model('grab_model', 'grab');
 		$this->CI->load->helper('grab');
 		$this->CI->load->helper('gb2big5');
-		
+
 		$this->sid = $this->db->select('sid')
 							  ->from('sites')
 							  ->where('name', $this->siteName)
@@ -37,19 +37,19 @@ class Site_xxbh extends CI_Model {
 		$result->img_ok = strlen($main_js) > 2000;
 		return $result;
 	}
-	
+
 	// type = title | chapter
 	public function execute ($type) {
 		switch ( $type ) {
-			case 'title' : 
-			case 'chapter' : 
+			case 'title' :
+			case 'chapter' :
 				$this->{'update_'.$type}();
 				break;
 			default:
 				throw new Exception('Undefined type, expected "title" or "chapter".');
 		}
 	}
-	
+
 	/* OK */
 	public function image_comic ($cid, $page, $getLink) {
 		$this->CI->load->model('comic_model', 'comic');
@@ -67,7 +67,7 @@ class Site_xxbh extends CI_Model {
 			show_404();
 		}
 	}
-	
+
 	/* OK */
 	public function image_thumbnail ($tid, $medium, $getLink) {
 		$url = $this->db->select('meta')->from('index_title')->where('id', $tid)->get()->row()->meta;
@@ -83,7 +83,7 @@ class Site_xxbh extends CI_Model {
 			'referer' => $this->url->main
 		]);
 	}
-	
+
 	/* OK */
 	private function update_title () {
 		$word_index_urls = $this->get_word_index();

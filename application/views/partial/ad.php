@@ -5,7 +5,7 @@
 	<title>SkyComic, 地表最快的漫畫網站</title>
 	<meta name="description" content="<?= $meta->description ?>" />
 	<meta name="keywords" content="<?= $meta->kw ?>" />
-	<meta property="og:type" content="website"> 
+	<meta property="og:type" content="website">
 	<meta property="og:url" content="http://www.skycomic.org/" />
 	<meta property="og:title" content="<?= $meta->title ?>SkyComic漫畫網, 地表最快的漫畫網站">
 	<meta property="og:description" content="地表最快的漫畫網站">

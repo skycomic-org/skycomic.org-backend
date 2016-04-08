@@ -58,14 +58,14 @@ class MY_Exceptions extends CI_Exceptions {
 		if ( $this->input->is_ajax_request() ) {
 			set_status_header($status_code);
 			$message = $heading . "\n\n" . implode("\n", ( ! is_array($message)) ? array($message) : $message)."\n";
-			
+
 			$this->output->json($status_code, $message);
-			
+
 			if (ob_get_level() > $this->ob_level + 1)
 			{
 				ob_end_clean();
 			}
-			
+
 			ob_start();
 			$this->output->_display();
 			$buffer = ob_get_contents();
@@ -109,7 +109,7 @@ class MY_Exceptions extends CI_Exceptions {
 			include(APPPATH.'errors/error_php.php');
 			$msg = ob_get_contents();
 			ob_end_clean();
-			
+
 			$this->output->cleanup()->error(500, $msg);
 		} else {
 			parent::show_php_error($severity, $message, $filepath, $line);

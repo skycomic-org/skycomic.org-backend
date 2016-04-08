@@ -2,11 +2,11 @@
 
 class User_model extends CI_Model {
 	private $table = 'user';
-	
+
 	function __construct () {
 		parent::__construct();
 	}
-	
+
 	public function read_view_by_tid ($tid, $newest=False) {
 		if ( !is_num($tid) ) {
 			return array();
@@ -35,7 +35,7 @@ class User_model extends CI_Model {
 							 ->limit(1)->get();
 		return $q->num_rows() == 0 ? array() : $q->row();
 	}
-	
+
 	public function read_by_id ($id) {
 		$q = $this->db->select('*')
 							 ->from($this->table)
@@ -43,7 +43,7 @@ class User_model extends CI_Model {
 							 ->limit(1)->get();
 		return $q->num_rows() == 0 ? array() : $q->row();
 	}
-	
+
 	public function read_by_email ($email) {
 		$q = $this->db->select('*')
 							 ->from($this->table)

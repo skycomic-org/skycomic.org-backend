@@ -22,7 +22,7 @@
 					</div>
 				</div>
 <?php if ( ALLOW_REGISTER ) : ?>
-				<div class="register-fields">							
+				<div class="register-fields">
 					<div class="clearfix">
 						<label for="pw2">確認密碼</label>
 						<div class="input">

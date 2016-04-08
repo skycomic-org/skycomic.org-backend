@@ -15,7 +15,7 @@ class Site_99comic extends CI_Model {
 	private $html;
 	private $dbchapters;
 	private $title_info;
-	
+
 	function __construct () {
 		$this->url = (object) $this->url;
 		$this->CI = & get_instance();
@@ -25,7 +25,7 @@ class Site_99comic extends CI_Model {
 		$this->CI->load->model('grab_model', 'grab');
 		$this->CI->load->helper('grab');
 		$this->CI->load->helper('gb2big5');
-		
+
 		$this->sid = $this->db->select('sid')
 							  ->from('sites')
 							  ->where('name', $this->siteName)
@@ -41,19 +41,19 @@ class Site_99comic extends CI_Model {
 		$result->img_ok = strlen($main_img) > 10000;
 		return $result;
 	}
-	
+
 	// type = title | chapter
 	public function execute ($type) {
 		switch ( $type ) {
-			case 'title' : 
-			case 'chapter' : 
+			case 'title' :
+			case 'chapter' :
 				$this->{'update_'.$type}();
 				break;
 			default:
 				throw new Exception('Undefined type, expected "title" or "chapter".');
 		}
 	}
-	
+
 	// OK
 	public function image_comic ($cid, $page, $getLink) {
 		$this->CI->load->model('comic_model', 'comic');
@@ -87,7 +87,7 @@ class Site_99comic extends CI_Model {
 			}
 #		}
 	}
-	
+
 	// OK
 	public function image_thumbnail ($tid, $medium, $getLink) {
 		$meta = json_decode($this->db->select('meta')->from('index_title')->where('id', $tid)->get()->row()->meta);
@@ -101,7 +101,7 @@ class Site_99comic extends CI_Model {
 			'referer' => $this->url->main
 		]);
 	}
-	
+
 	// OK
 	private function update_title () {
 		$urls = $this->get_title_urls();
@@ -116,7 +116,7 @@ class Site_99comic extends CI_Model {
 		for ($i = 0; $i <= count($urls); $i += 100) {
 			$now_urls = array_slice($urls, $i, 100);
 			$htmls = $this->CI->curl->getData_multi_tmp($now_urls);
- 
+
 			foreach ($htmls as $html) {
 				$this->html = &$html;
 				$info = $this->parse_title_info();
@@ -146,7 +146,7 @@ class Site_99comic extends CI_Model {
 					$insert = array_merge($update, $insert);
 					$this->db->insert('index_title', $insert, True);
 				}
-			}	
+			}
 		}
 	}
 
@@ -318,7 +318,7 @@ class Site_99comic extends CI_Model {
 		$chapter = str_replace('卷', '集', $chapter);
 		return $chapter;
 	}
-	
+
 	// OK
 	private function parse_chapters () {
 		if (preg_match_all("/comics\/\d+o(\d+)\/'>([^<]+)/", $this->html, $matches, PREG_SET_ORDER)) {

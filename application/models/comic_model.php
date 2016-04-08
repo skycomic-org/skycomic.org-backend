@@ -4,7 +4,7 @@ class Comic_model extends CI_Model {
 	private $t_title = 'index_title';
 	private $t_chapter = 'index_chapter';
 	public $limit = 50;
-	
+
 	private function extract_meta ($row) {
 		if ( !is_array($row) ) {
 			$row = (object) $row;
@@ -17,7 +17,7 @@ class Comic_model extends CI_Model {
 		}
 		return $row;
 	}
-	
+
 	public function fix_date (&$q) {
 		foreach ($q as &$row) {
 			$date = $row['update_time'];
@@ -39,7 +39,7 @@ class Comic_model extends CI_Model {
 	  		return False;
 	  	}
 	}
-	
+
 	public function read_chapters_newest ($limit) {
 		$sql="SELECT t1.tid, t1.cid, t1.name AS chapter, t2.name AS title, t1.update_time"
 			." FROM index_chapter AS t1"
@@ -50,7 +50,7 @@ class Comic_model extends CI_Model {
 		$this->fix_date($q);
 		return $q;
 	}
-	
+
 	public function read_title_by_tid ($id) {
 		$q = $this->db->select('*')
 					 ->from($this->t_title)
@@ -59,7 +59,7 @@ class Comic_model extends CI_Model {
 					 ->limit(1)->get();
 		return $q->num_rows() == 0 ? array() : $this->extract_meta($q->row());
 	}
-	
+
 	public function read_title_by_index ($id) {
 		$q = $this->db->select('*')
 					 ->from($this->t_title)
@@ -68,7 +68,7 @@ class Comic_model extends CI_Model {
 					 ->limit(1)->get();
 		return $q->num_rows() == 0 ? array() : $this->extract_meta($q->row());
 	}
-	
+
 	public function read_titles_by_vtid ($vtid) {
 		$q = $this->db->select('*')
 					 ->from($this->t_title)
@@ -84,17 +84,17 @@ class Comic_model extends CI_Model {
 					 ->get();
 		return $q->num_rows() == 0 ? array() : $this->extract_meta($q->result_array());
 	}
-	
+
 	private function read_titles_prep ($cat_id, $type) {
 		if ( !is_num($cat_id) )
 			$cat_id = 0;
-		
+
 		if ( $type == 'online' ) {
 			$this->db->where('stop_renew', '0');
 		} else {
 			$this->db->where('stop_renew', '1');
 		}
-		
+
 		if ( $cat_id != 0 ) {
 			$this->db->where('cat_id', $cat_id);
 		}
@@ -112,7 +112,7 @@ class Comic_model extends CI_Model {
 		$this->fix_date($data);
 		return $data;
 	}
-	
+
 	public function read_vtitles ($cat_id, $type, $page, $order) {
 		$this->read_titles_prep($cat_id, $type);
 		if ($order == 'name') {
@@ -129,7 +129,7 @@ class Comic_model extends CI_Model {
 		$this->fix_date($data);
 		return $data;
 	}
-	
+
 	public function read_vtitles_count ($cat_id, $type) {
 		$this->read_titles_prep($cat_id, $type);
 		return $this->db->select('VT.vtid')
@@ -138,7 +138,7 @@ class Comic_model extends CI_Model {
 						 ->group_by('VT.vtid')
 						 ->get()->num_rows();
 	}
-	
+
 	public function read_titles ($cat_id, $type, $page, $order) {
 		$this->read_titles_prep($cat_id, $type);
 		$data = $this->db->select('id AS tid, name AS title, INFO.pop, INFO.update_time')
@@ -150,12 +150,12 @@ class Comic_model extends CI_Model {
 		$this->fix_date($data);
 		return $data;
 	}
-	
+
 	public function read_titles_count ($cat_id, $type) {
 		$this->read_titles_prep($cat_id, $type);
 		return $this->db->count_all_results('index_title');
 	}
-	
+
 	public function read_chapter_by_cid ($id) {
 		$q = $this->db->select('*')
 					 ->from($this->t_chapter)
@@ -163,7 +163,7 @@ class Comic_model extends CI_Model {
 					 ->limit(1)->get();
 		return $q->num_rows() == 0 ? array() : $this->extract_meta($q->row());
 	}
-	
+
 	public function read_chapters_by_tid ($id) {
 		$q = $this->db->select('*')
 					 ->from($this->t_chapter)

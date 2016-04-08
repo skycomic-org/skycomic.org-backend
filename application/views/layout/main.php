@@ -11,18 +11,18 @@
 </head>
 
 <body>
-    <div id="header-menu" class="navbar navbar-fixed-top navbar-inverse"> 
-      <div class="navbar-inner"> 
-        <div class="container-fluid"> 
-          <a class="btn btn-navbar" data-toggle="collapse" data-target="#topmenu"> 
-            <span class="icon-bar"></span> 
-            <span class="icon-bar"></span> 
-            <span class="icon-bar"></span> 
-          </a> 
+    <div id="header-menu" class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target="#topmenu">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
           <a class="brand" href="<?php echo base_url(); ?>">SkyComic</a>
           <div id="topmenu" class="nav-collapse"><?php if (isset($nav)) echo $nav; ?></div>
-        </div> 
-      </div> 
+        </div>
+      </div>
     </div>
 
 	<div id="container">
@@ -56,7 +56,7 @@
 	<div id="image-cache2" style="display:none"></div>
 	<?php $this->load->view('killie'); ?>
 <footer>
-	
+
 	<div class="bottombar-wrapper">
 		<div class="bottombar">
 				<div id="bottom-div" class="container-fluid">
