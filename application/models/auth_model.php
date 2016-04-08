@@ -5,7 +5,7 @@ class Auth_model extends CI_Model {
 	private $table = 'user';
 	private $CI;
 	private $cookie_name = 'SkyComic_auth';
-	const MOBILE_EXPIRE_DAY = 60;
+	const MOBILE_EXPIRE_DAY = 3650;
 
 	function __construct () {
 		parent::__construct();
