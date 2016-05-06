@@ -86,8 +86,11 @@ class Grab_model extends CI_Model {
 	}
 
 	public function curlUseProxy ($curl) {
+		if (!isset($this->proxys_)) {
+			$this->proxys_ = $this->read_proxys('index');
+		}
 		return $curl->header('cache-control', 'no-cache')
-			->proxy( $this->read_proxys('index') );
+			->proxy($this->proxys_);
 	}
 
 	public function render_image ($params) {

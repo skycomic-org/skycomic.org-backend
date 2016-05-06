@@ -155,32 +155,46 @@ class ChapterFetcher {
 		}
 	}
 
+	public function groupArray (&$array, $groupNum) {
+		$len = count($array);
+		$count = floor($len / $groupNum);
+		for ($i = 0; $i < $count; $i++) {
+			yield array_slice($array, $i * $groupNum, $groupNum);
+		}
+	}
+
 	public function fetch () {
 		elog('start fetch', 'debug');
 		$this->CI->load->model('comic_model', 'comic');
-		$titles = $this->CI->grab->read_title_by_sid($this->sid);
-		$htmls = $this->fetchChapterHTMLs($titles);
+		$allTitles = $this->CI->grab->read_title_by_sid($this->sid);
 
-		foreach ($titles as $idx => $title) {
-			try {
-				$this->fetchComic($title, $htmls[$idx]);
-			} catch (Exception $e) {
-				elog($title['name'] . " got exception: " . $e->getMessage());
-				elog($e->getTraceAsString());
-				continue;
+		foreach ($this->groupArray($allTitles, 500) as $titles) {
+			$htmls = $this->fetchChapterHTMLs($titles);
+			foreach ($titles as $idx => $title) {
+				try {
+					$this->fetchComic($title, $htmls[$idx]);
+				} catch (Exception $e) {
+					elog($title['name'] . " got exception: " . $e->getMessage());
+					elog($e->getTraceAsString());
+					continue;
+				}
 			}
+			elog('done one run', 'debug');
 		}
+
 		elog('done fetch', 'debug');
 	}
 
 	private function fetchChapterHTMLs ($titles) {
 		elog('start fetchChapterHTMLs', 'debug');
+		$curl = &$this->CI->grab->curlUseProxy($this->CI->curl);
+
 		$urls = array();
 		foreach ($titles as $row) {
-			$urls[] = ChapterFetcher::$gURLs->title . $row['index'] .'.html';
+			$curl->url(ChapterFetcher::$gURLs->title . $row['index'] .'.html')->add();
 		}
 
-		return $this->CI->grab->curlUseProxy($this->CI->curl)->getData_multi_tmp($urls);
+		return $curl->limit(50)->get_all();
 	}
 
 	private function fetchComic (&$title, &$html) {
