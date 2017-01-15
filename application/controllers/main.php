@@ -35,5 +35,4 @@ class Main extends MEMBER_Controller {
 		$this->load->view('partial/ad', array('meta' => $meta));
 	}
 }
-
 /* End of file main.php */
