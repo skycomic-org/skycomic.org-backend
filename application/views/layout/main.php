@@ -52,8 +52,6 @@
 		<div id="Modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Modal-Label" aria-hidden="true"></div>
 </div>
 	</div><!-- /container -->
-	<div id="image-cache" style="display:none"></div>
-	<div id="image-cache2" style="display:none"></div>
 	<?php $this->load->view('killie'); ?>
 <footer>
 
