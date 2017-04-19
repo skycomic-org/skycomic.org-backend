@@ -1,3 +1,4 @@
+<?php header('Referrer-Policy: no-referrer'); ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -52,7 +53,11 @@
 		<div id="Modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="Modal-Label" aria-hidden="true"></div>
 </div>
 	</div><!-- /container -->
-	<?php $this->load->view('killie'); ?>
+	<?php
+		if (get_browser(null, true)['browser'] !== 'Firefox' && get_browser(null, true)['browser'] !== 'Chrome') {
+			$this->load->view('killie');
+		}
+	?>
 <footer>
 
 	<div class="bottombar-wrapper">
