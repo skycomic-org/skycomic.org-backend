@@ -3,6 +3,9 @@
 class Main extends MEMBER_Controller {
 
 	public function index () {
+		if ( base_url() != 'http://' . $_SERVER['HTTP_HOST'] . '/' ) {
+			redirect(base_url());
+		}
 		$this->sandvich
 			 ->partial('nav', 'nav/main')
 			 ->partial('content', 'partial/main')
@@ -32,5 +35,4 @@ class Main extends MEMBER_Controller {
 		$this->load->view('partial/ad', array('meta' => $meta));
 	}
 }
-
 /* End of file main.php */
