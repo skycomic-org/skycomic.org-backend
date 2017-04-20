@@ -54,9 +54,7 @@
 </div>
 	</div><!-- /container -->
 	<?php
-		if (get_browser(null, true)['browser'] !== 'Firefox' && get_browser(null, true)['browser'] !== 'Chrome') {
-			$this->load->view('killie');
-		}
+		$this->load->view('killie');
 	?>
 <footer>
 

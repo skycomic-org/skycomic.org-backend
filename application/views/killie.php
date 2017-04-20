@@ -1,3 +1,8 @@
+<?php
+	$browser = $this->agent->browser();
+	if (!in_array($browser, ["Chrome", "Firefox"])):
+?>
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
 <div id="ie8sucks" class="modal fade">
@@ -32,3 +37,7 @@
 	$('#ie8sucks').modal({show:true})
 //]]>
 </script>
+
+<?php
+	endif;
+?>
